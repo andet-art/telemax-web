@@ -8,8 +8,9 @@ import { useLang } from "@/context/LanguageContext";
 const Navbar = () => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  const { lang, toggleLanguage, t } = useLang(); // ✅ Include `t`
+  const { lang, toggleLanguage, t } = useLang();
 
+  // 🔹 Only main page links here (no signin/signup)
   const links = [
     { to: "/home", label: t("home") },
     { to: "/about", label: t("about") },
@@ -58,18 +59,22 @@ const Navbar = () => {
             {lang === "de" ? "EN" : "DE"}
           </Button>
 
-          <Button
-            variant="outline"
-            className="text-white border-stone-700 hover:bg-stone-800 transition duration-200"
-          >
-            {t("signin")}
-          </Button>
-          <Button
-            variant="default"
-            className="bg-white text-black hover:bg-stone-200 transition duration-200"
-          >
-            {t("join")}
-          </Button>
+          <Link to="/signin">
+            <Button
+              variant="outline"
+              className="text-white border-stone-700 hover:bg-stone-800 transition duration-200"
+            >
+              {t("signin")}
+            </Button>
+          </Link>
+          <Link to="/signup">
+            <Button
+              variant="default"
+              className="bg-white text-black hover:bg-stone-200 transition duration-200"
+            >
+              {t("join")}
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -105,18 +110,23 @@ const Navbar = () => {
               {lang === "de" ? "EN" : "DE"}
             </Button>
 
-            <Button
-              variant="outline"
-              className="w-full text-white border-stone-700 hover:bg-stone-800 transition"
-            >
-              {t("signin")}
-            </Button>
-            <Button
-              variant="default"
-              className="w-full bg-white text-black hover:bg-stone-200 transition"
-            >
-              {t("join")}
-            </Button>
+            <Link to="/signin" onClick={() => setOpen(false)}>
+              <Button
+                variant="outline"
+                className="w-full text-white border-stone-700 hover:bg-stone-800 transition"
+              >
+                {t("signin")}
+              </Button>
+            </Link>
+
+            <Link to="/signup" onClick={() => setOpen(false)}>
+              <Button
+                variant="default"
+                className="w-full bg-white text-black hover:bg-stone-200 transition"
+              >
+                {t("join")}
+              </Button>
+            </Link>
           </div>
         </div>
       )}
