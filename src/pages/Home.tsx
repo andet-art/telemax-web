@@ -16,7 +16,7 @@ import pipe3 from "../assets/pipe3.jpg";
 import artisanImg from "../assets/artisan.jpg";
 import artisan2 from "../assets/artisan2.jpg";
 import smokeGif from "../assets/smoke.gif";
-import { useLang } from "@/context/LanguageContext";
+import { useLang } from "../context/LanguageContext";
 
 const Home = () => {
   const pipes = [pipe1, pipe2, pipe3];
