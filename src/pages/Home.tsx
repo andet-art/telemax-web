@@ -1,8 +1,358 @@
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import Lenis from "@studio-freight/lenis";
+import { Link } from "react-router-dom";
+import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
+import LazyLoad from "react-lazyload";
+import Modal from "react-modal";
+import { FaCheckCircle, FaStar, FaQuoteLeft, FaArrowRight } from "react-icons/fa";
+gsap.registerPlugin(ScrollTrigger);
+
+import woodBg from "../assets/wood-bg.jpg";
+import pipe1 from "../assets/pipe1.jpg";
+import pipe2 from "../assets/pipe2.jpg";
+import pipe3 from "../assets/pipe3.jpg";
+import artisanImg from "../assets/artisan.jpg";
+import artisan2 from "../assets/artisan2.jpg";
+import smokeGif from "../assets/smoke.gif";
+import { useLang } from "@/context/LanguageContext";
+
 const Home = () => {
+  const pipes = [pipe1, pipe2, pipe3];
+  const { t } = useLang();
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  
+  // Lightbox modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImage, setModalImage] = useState<string | null>(null);
+
+  // Lenis smooth scroll
+  useEffect(() => {
+    const lenis = new Lenis();
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    const onScroll = () => setShowScrollTop(window.scrollY > 300);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // GSAP ScrollTrigger animations
+  useEffect(() => {
+    gsap.utils.toArray(".reveal").forEach((el: any) => {
+      gsap.fromTo(
+        el,
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 80%",
+            toggleActions: "play none none reverse",
+          },
+        }
+      );
+    });
+  }, []);
+
+  // Open lightbox modal
+  const openModal = (src: string) => {
+    setModalImage(src);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalImage(null);
+  };
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
   return (
-    <div className="bg-red-500 text-white text-2xl p-10">
-      ✅ Tailwind is working!
+    <div className="bg-[#1a120b] text-white overflow-hidden font-serif">
+
+      {/* Hero Section - immersive full screen with smoke gif overlay */}
+      <motion.section
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1 }}
+        className="relative min-h-screen flex flex-col justify-center items-center text-center px-6"
+        style={{
+          backgroundImage: `url(${woodBg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-black/70 z-0" />
+        <img src={smokeGif} alt="Smoke effect" className="absolute top-20 left-10 opacity-40 w-40 z-10" />
+        <img src={smokeGif} alt="Smoke effect" className="absolute bottom-20 right-10 opacity-30 w-60 z-10" />
+        <div className="relative z-20 max-w-3xl">
+          <h1 className="text-6xl md:text-8xl font-extrabold tracking-wide drop-shadow-2xl mb-6">
+            {t("home.hero_title")}
+          </h1>
+          <p className="text-2xl md:text-3xl text-stone-300 mb-10 leading-relaxed max-w-3xl mx-auto">
+            {t("home.hero_subtitle")}
+          </p>
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-3 bg-amber-600 hover:bg-amber-700 text-white px-10 py-4 rounded-full text-xl shadow-xl transition"
+          >
+            {t("home.view_collection")} <FaArrowRight className="w-5 h-5" />
+          </Link>
+        </div>
+      </motion.section>
+
+      {/* Section 1 - Feature List + Large Image + Quote */}
+      <section className="py-28 px-8 bg-[#231a13] flex flex-col md:flex-row items-center max-w-7xl mx-auto gap-20 reveal">
+        <div className="md:w-1/2 space-y-10">
+          <h2 className="text-5xl font-bold mb-6">{t("home.section1_title")}</h2>
+          <ul className="space-y-6">
+            {[
+              t("home.section1_feat1"),
+              t("home.section1_feat2"),
+              t("home.section1_feat3"),
+              t("home.section1_feat4"),
+            ].map((feat, i) => (
+              <li key={i} className="flex items-center gap-4 text-lg text-stone-300">
+                <FaCheckCircle className="text-amber-500 w-7 h-7 flex-shrink-0" />
+                {feat}
+              </li>
+            ))}
+          </ul>
+          <blockquote className="italic text-amber-500 text-xl mt-8 border-l-4 border-amber-600 pl-6 max-w-xl">
+            {t("home.section1_quote")}
+          </blockquote>
+        </div>
+        <div className="md:w-1/2 rounded-xl shadow-2xl overflow-hidden">
+          <img src={artisanImg} alt="Craftsmanship" className="w-full object-cover rounded-xl" />
+        </div>
+      </section>
+
+      {/* Section 2 - Grid cards + hover animations */}
+      <section className="py-28 px-8 bg-[#1b130e] max-w-7xl mx-auto reveal">
+        <h2 className="text-5xl font-bold mb-16 text-center">{t("home.section2_title")}</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
+          {[pipe1, pipe2, pipe3].map((img, i) => (
+            <motion.div
+              key={i}
+              whileHover={{ scale: 1.05, boxShadow: "0 10px 20px rgba(255, 165, 0, 0.6)" }}
+              transition={{ duration: 0.3 }}
+              className="bg-[#2a1d13] rounded-xl p-6 flex flex-col items-center cursor-pointer"
+            >
+              <img
+                src={img}
+                alt={`Model ${i + 1}`}
+                className="rounded-lg mb-6 w-full object-cover h-72"
+                loading="lazy"
+              />
+              <h3 className="text-2xl font-semibold mb-3">{t("home.model")} {i + 1}</h3>
+              <p className="text-stone-400 text-center">{t("home.model_sub")}</p>
+              <button
+                onClick={() => openModal(img)}
+                className="mt-6 bg-amber-600 px-5 py-2 rounded-full font-semibold text-white hover:bg-amber-700 transition"
+              >
+                {t("home.view_detail")}
+              </button>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Section 3 - Timeline with icons and animated line */}
+      <section className="py-28 px-8 bg-[#231a13] max-w-7xl mx-auto relative reveal">
+        <h2 className="text-5xl font-bold mb-16 text-center">{t("home.timeline_title")}</h2>
+        <div className="relative before:absolute before:top-16 before:left-1/2 before:-translate-x-1/2 before:w-1 before:h-[90%] before:bg-amber-600">
+          {[ 
+            { year: "1982", event: t("home.timeline_event1") },
+            { year: "1995", event: t("home.timeline_event2") },
+            { year: "2005", event: t("home.timeline_event3") },
+            { year: "2020", event: t("home.timeline_event4") },
+          ].map(({ year, event }, i) => (
+            <div
+              key={i}
+              className={`mb-20 w-full md:w-1/2 px-8 relative flex flex-col items-center ${
+                i % 2 === 0 ? "md:items-start md:pl-16" : "md:items-end md:pr-16"
+              }`}
+            >
+              <div className="bg-amber-600 rounded-full w-12 h-12 flex items-center justify-center text-black font-bold text-xl shadow-lg">
+                {year}
+              </div>
+              <div className="bg-[#2a1d13] rounded-xl p-6 mt-6 max-w-sm shadow-lg">
+                <p className="text-stone-300 text-lg">{event}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Section 4 - Quote with large image background */}
+      <section
+        className="relative py-32 px-8 bg-cover bg-center bg-no-repeat reveal"
+        style={{ backgroundImage: `url(${artisan2})` }}
+      >
+        <div className="absolute inset-0 bg-black/70" />
+        <div className="relative max-w-4xl mx-auto text-center text-amber-400 space-y-8">
+          <FaQuoteLeft className="mx-auto text-7xl opacity-50" />
+          <p className="text-3xl italic font-serif tracking-wide">{t("home.quote_text")}</p>
+          <p className="text-xl font-semibold">{t("home.quote_author")}</p>
+          <Link
+            to="/contact"
+            className="inline-block mt-6 bg-amber-600 px-8 py-3 rounded-full text-lg font-semibold hover:bg-amber-700 transition"
+          >
+            {t("home.contact_cta")}
+          </Link>
+        </div>
+      </section>
+
+      {/* Section 5 - Testimonials horizontally scrollable */}
+      <section className="py-24 px-6 bg-[#1a120b] max-w-7xl mx-auto reveal">
+        <h2 className="text-5xl font-bold mb-12 text-center">{t("home.testimonials_title")}</h2>
+        <div
+          className="flex overflow-x-auto gap-8 snap-x snap-mandatory px-4"
+          style={{ scrollSnapType: "x mandatory" }}
+        >
+          {[
+            { text: t("home.testimonial1_text"), author: t("home.testimonial1_author") },
+            { text: t("home.testimonial2_text"), author: t("home.testimonial2_author") },
+            { text: t("home.testimonial3_text"), author: t("home.testimonial3_author") },
+          ].map(({ text, author }, i) => (
+            <motion.blockquote
+              key={i}
+              className="snap-center min-w-[320px] max-w-sm bg-[#2a1d13] p-8 rounded-xl shadow-xl flex-shrink-0"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: i * 0.15 }}
+            >
+              <p className="italic text-stone-300 mb-6">{text}</p>
+              <footer className="text-amber-600 font-semibold">— {author}</footer>
+              <div className="mt-4 flex gap-1 justify-center text-amber-500">
+                {[...Array(5)].map((_, star) => (
+                  <FaStar key={star} />
+                ))}
+              </div>
+            </motion.blockquote>
+          ))}
+        </div>
+      </section>
+
+      {/* Section 6 - Gallery with lightbox */}
+      <section className="py-32 px-6 bg-[#231a13] text-center reveal">
+        <h2 className="text-5xl font-bold mb-10">{t("home.gallery_title")}</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {[pipe1, pipe2, pipe3, artisan2, pipe3, pipe1].map((src, i) => (
+            <LazyLoad key={i} height={250} offset={100} once>
+              <img
+                onClick={() => openModal(src)}
+                src={src}
+                alt={`Gallery image ${i + 1}`}
+                className="rounded-lg shadow-lg cursor-pointer hover:scale-105 transition-transform"
+                loading="lazy"
+              />
+            </LazyLoad>
+          ))}
+        </div>
+      </section>
+
+      {/* Modal Lightbox */}
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        contentLabel="Image Modal"
+        ariaHideApp={false}
+        className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-6"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-75"
+      >
+        {modalImage && (
+          <img
+            src={modalImage}
+            alt="Expanded view"
+            className="max-w-full max-h-[90vh] rounded-lg shadow-2xl"
+          />
+        )}
+        <button
+          onClick={closeModal}
+          className="absolute top-6 right-6 text-white text-3xl font-bold hover:text-amber-500"
+          aria-label="Close Modal"
+        >
+          &times;
+        </button>
+      </Modal>
+
+      {/* Section 7 - FAQ with accordions */}
+      <section className="py-24 px-6 bg-[#1a120b] max-w-5xl mx-auto">
+        <h2 className="text-5xl font-bold mb-10 text-center reveal">{t("home.faq_title")}</h2>
+        <FAQ />
+      </section>
+
+      {/* CMS Integration Placeholder */}
+      <section className="py-24 px-6 bg-[#231a13] text-center reveal max-w-4xl mx-auto">
+        <h2 className="text-3xl font-bold mb-4">Live Updates with Sanity CMS</h2>
+        <p className="text-stone-300 max-w-3xl mx-auto mb-8">
+          This section is connected to a headless CMS (Sanity) and can be edited in real-time without redeploying the site. Ask us how to set it up!
+        </p>
+        <button className="mt-6 bg-amber-600 px-8 py-4 rounded shadow hover:bg-amber-700 transition font-semibold text-lg">
+          Connect Sanity
+        </button>
+      </section>
+
+      {/* Scroll To Top */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 p-3 bg-amber-600 hover:bg-amber-700 rounded-full text-white shadow-lg transition-all"
+          aria-label="Scroll to top"
+        >
+          ↑
+        </button>
+      )}
     </div>
-  )
-}
-export default Home
+  );
+};
+
+// Accordion FAQ component
+const FAQ = () => {
+  const { t } = useLang();
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const toggle = (index: number) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
+
+  return (
+    <div className="space-y-6 max-w-3xl mx-auto">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="reveal">
+          <button
+            onClick={() => toggle(i)}
+            className="w-full text-left text-xl font-semibold bg-[#2a1d13] rounded px-4 py-3 flex justify-between items-center"
+            aria-expanded={activeIndex === i}
+            aria-controls={`faq-answer-${i}`}
+            id={`faq-question-${i}`}
+          >
+            {t(`home.faq_q${i}`)}
+            <span className="text-amber-500 text-2xl">{activeIndex === i ? "-" : "+"}</span>
+          </button>
+          <div
+            id={`faq-answer-${i}`}
+            role="region"
+            aria-labelledby={`faq-question-${i}`}
+            className={`overflow-hidden transition-all duration-500 px-4 ${
+              activeIndex === i ? "max-h-96 py-4" : "max-h-0"
+            }`}
+          >
+            <p className="text-stone-300">{t(`home.faq_a${i}`)}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default Home;

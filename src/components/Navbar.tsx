@@ -3,17 +3,19 @@ import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { motion } from "framer-motion";
-
-const links = [
-  { to: "/home", label: "Home" },
-  { to: "/about", label: "About" },
-  { to: "/orders", label: "Orders" },
-  { to: "/contact", label: "Contact" },
-];
+import { useLang } from "@/context/LanguageContext";
 
 const Navbar = () => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const { lang, toggleLanguage, t } = useLang(); // ✅ Include `t`
+
+  const links = [
+    { to: "/home", label: t("home") },
+    { to: "/about", label: t("about") },
+    { to: "/orders", label: t("orders") },
+    { to: "/contact", label: t("contact") },
+  ];
 
   return (
     <motion.header
@@ -46,19 +48,27 @@ const Navbar = () => {
           ))}
         </nav>
 
-        {/* Desktop Auth Buttons */}
+        {/* Desktop Buttons + Language Toggle */}
         <div className="hidden md:flex items-center gap-3">
+          <Button
+            variant="ghost"
+            onClick={toggleLanguage}
+            className="text-stone-300 hover:text-white px-3"
+          >
+            {lang === "de" ? "EN" : "DE"}
+          </Button>
+
           <Button
             variant="outline"
             className="text-white border-stone-700 hover:bg-stone-800 transition duration-200"
           >
-            Sign In
+            {t("signin")}
           </Button>
           <Button
             variant="default"
             className="bg-white text-black hover:bg-stone-200 transition duration-200"
           >
-            Join Now
+            {t("join")}
           </Button>
         </div>
 
@@ -88,16 +98,24 @@ const Navbar = () => {
 
           <div className="pt-4 flex flex-col gap-2">
             <Button
+              variant="ghost"
+              onClick={toggleLanguage}
+              className="text-stone-300 hover:text-white"
+            >
+              {lang === "de" ? "EN" : "DE"}
+            </Button>
+
+            <Button
               variant="outline"
               className="w-full text-white border-stone-700 hover:bg-stone-800 transition"
             >
-              Sign In
+              {t("signin")}
             </Button>
             <Button
               variant="default"
               className="w-full bg-white text-black hover:bg-stone-200 transition"
             >
-              Join Now
+              {t("join")}
             </Button>
           </div>
         </div>
