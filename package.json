@@ -25,6 +25,7 @@
     "react-accessible-accordion": "^5.0.1",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.59.0",
+    "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
     "react-lazyload": "^3.2.1",
     "react-modal": "^3.16.3",
@@ -53,5 +54,18 @@
     "typescript-eslint": "^8.34.1",
     "vite": "^7.0.0",
     "vitest": "^3.2.4"
-  }
+  },
+  "description": "<<<<<<< HEAD\r # telemax\r =======\r # React + TypeScript + Vite",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andet-art/telemax.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andet-art/telemax/issues"
+  },
+  "homepage": "https://github.com/andet-art/telemax#readme"
 }

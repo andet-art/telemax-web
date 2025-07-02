@@ -8,3 +8,11 @@ npm install -D @tailwindcss/postcss
 npx shadcn@latest init
 npm install -D @tailwindcss/forms
 npm install framer-motion
+
+
+
+
+
+
+ermal:
+npm install react-hot-toast
