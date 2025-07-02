@@ -1,15 +1,16 @@
 import { Link } from "react-router-dom";
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Lenis from "@studio-freight/lenis";
 import { useLang } from "../context/LanguageContext";
 import { FaQuoteLeft } from "react-icons/fa";
 import teamImg from "../assets/artisan.jpg";
-import philosophyImg from "../assets/wood-bg.jpg";
+import philosophyImg from "../assets/wood-bg10.jpg";
+import heroVideo from "../assets/hero-bg.mp4";
 
 const About = () => {
   const { t } = useLang();
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   useEffect(() => {
     const lenis = new Lenis();
@@ -22,17 +23,23 @@ const About = () => {
 
   return (
     <div className="bg-[#1a120b] text-white font-serif overflow-hidden">
-      {/* Hero Section */}
-      <section
-        className="min-h-screen flex items-center justify-center text-center px-6 bg-cover bg-center relative"
-        style={{ backgroundImage: `url(${philosophyImg})` }}
-      >
-        <div className="absolute inset-0 bg-black/70" />
+      {/* Hero Section with Video Background */}
+      <section className="relative min-h-screen flex items-center justify-center text-center px-6 overflow-hidden">
+        <video
+          src={heroVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          onLoadedData={() => setVideoLoaded(true)}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/60 z-10" />
         <motion.div
           initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ opacity: videoLoaded ? 1 : 0, y: 0 }}
           transition={{ duration: 1 }}
-          className="relative z-10 max-w-4xl"
+          className="relative z-20 max-w-4xl"
         >
           <h1 className="text-6xl md:text-7xl font-extrabold mb-6">
             {t("about.title") || "Crafting Stories in Every Pipe"}
