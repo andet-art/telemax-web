@@ -166,7 +166,8 @@ const Home = () => {
       </section>
 
       {/* Section 3 - Timeline with icons and animated line */}
-      <section className="py-28 px-8 bg-[#231a13] max-w-7xl mx-auto relative reveal">
+      
+    <section className="py-28 px-8 bg-[#231a13] max-w-7xl mx-auto relative reveal">
         <h2 className="text-5xl font-bold mb-16 text-center">{t("home.timeline_title")}</h2>
         <div className="relative before:absolute before:top-16 before:left-1/2 before:-translate-x-1/2 before:w-1 before:h-[90%] before:bg-amber-600">
           {[ 
