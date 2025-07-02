@@ -1,7 +1,7 @@
 // src/layouts/MainLayout.tsx
 import { ReactNode } from "react";
 import Navbar from "../components/Navbar";
-import Footer from "@/components/Footer";
+import Footer from "../components/Footer";
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
   return (
