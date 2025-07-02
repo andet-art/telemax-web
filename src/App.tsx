@@ -26,6 +26,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/checkout" element={<Checkout />} /> {/* ✅ Correct placement */}
           <Route path="/profile" element={<Profile />} />
+          <Route path="/payment" element={<Payment/>}/>
         </Routes>
       </MainLayout>
     </Router>
