@@ -30,11 +30,16 @@ const Checkout = () => {
 
     setIsSubmitting(true);
 
-    // Simulate order submission delay
+    // Simulate order submission delay and navigate to payment screen
     setTimeout(() => {
-      alert(`Thank you, ${formData.name}! Your order has been placed.`);
-      clearCart();
-      navigate("/");
+      navigate("/payment", {
+        state: {
+          name: formData.name,
+          email: formData.email,
+          address: formData.address,
+          total: totalPrice,
+        },
+      });
     }, 1500);
   };
 
@@ -54,7 +59,6 @@ const Checkout = () => {
 
   return (
     <main className="pt-32 min-h-screen bg-stone-950 text-white px-4">
-
       <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-amber-400 to-pink-500 bg-clip-text text-transparent">
         Checkout
       </h1>
