@@ -9,7 +9,9 @@ import Modal from "react-modal";
 import { FaCheckCircle, FaStar, FaQuoteLeft, FaArrowRight } from "react-icons/fa";
 gsap.registerPlugin(ScrollTrigger);
 
-import woodBg from "../assets/wood-bg.jpg";
+
+import heroVideo from "../assets/hero-home.mp4";
+
 import pipe1 from "../assets/pipe1.jpg";
 import pipe2 from "../assets/pipe2.jpg";
 import pipe3 from "../assets/pipe3.jpg";
@@ -78,36 +80,43 @@ const Home = () => {
   return (
     <div className="bg-[#1a120b] text-white overflow-hidden font-serif">
 
-      {/* Hero Section - immersive full screen with smoke gif overlay */}
-      <motion.section
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1 }}
-        className="relative min-h-screen flex flex-col justify-center items-center text-center px-6"
-        style={{
-          backgroundImage: `url(${woodBg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="absolute inset-0 bg-black/70 z-0" />
-        <img src={smokeGif} alt="Smoke effect" className="absolute top-20 left-10 opacity-40 w-40 z-10" />
-        <img src={smokeGif} alt="Smoke effect" className="absolute bottom-20 right-10 opacity-30 w-60 z-10" />
-        <div className="relative z-20 max-w-3xl">
-          <h1 className="text-6xl md:text-8xl font-extrabold tracking-wide drop-shadow-2xl mb-6">
-            {t("home.hero_title")}
-          </h1>
-          <p className="text-2xl md:text-3xl text-stone-300 mb-10 leading-relaxed max-w-3xl mx-auto">
-            {t("home.hero_subtitle")}
-          </p>
-          <Link
-            to="/products"
-            className="inline-flex items-center gap-3 bg-amber-600 hover:bg-amber-700 text-white px-10 py-4 rounded-full text-xl shadow-xl transition"
-          >
-            {t("home.view_collection")} <FaArrowRight className="w-5 h-5" />
-          </Link>
-        </div>
-      </motion.section>
+      {/* Hero Section - immersive full screen with video background */}
+<motion.section
+  initial={{ opacity: 0, scale: 0.95 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ duration: 1 }}
+  className="relative min-h-screen flex flex-col justify-center items-center text-center px-6 overflow-hidden"
+>
+  {/* Background video */}
+  <video
+    src={heroVideo}
+    autoPlay
+    muted
+    loop
+    playsInline
+    className="absolute inset-0 w-full h-full object-cover"
+  />
+
+  {/* Single soft overlay to improve text contrast */}
+  <div className="absolute inset-0 	bg-[#1e1007]/60 z-10" />
+
+  {/* Hero Content */}
+  <div className="relative z-20 max-w-3xl">
+    <h1 className="text-6xl md:text-8xl font-extrabold tracking-wide drop-shadow-2xl mb-6">
+      {t("home.hero_title")}
+    </h1>
+    <p className="text-2xl md:text-3xl text-stone-300 mb-10 leading-relaxed max-w-3xl mx-auto">
+      {t("home.hero_subtitle")}
+    </p>
+    <Link
+      to="/products"
+      className="inline-flex items-center gap-3 bg-amber-600 hover:bg-amber-700 text-white px-10 py-4 rounded-full text-xl shadow-xl transition"
+    >
+      {t("home.view_collection")} <FaArrowRight className="w-5 h-5" />
+    </Link>
+  </div>
+</motion.section>
+
 
       {/* Section 1 - Feature List + Large Image + Quote */}
       <section className="py-28 px-8 bg-[#231a13] flex flex-col md:flex-row items-center max-w-7xl mx-auto gap-20 reveal">
