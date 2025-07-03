@@ -98,7 +98,7 @@ const Home = () => {
           ease: "power3.out",
           scrollTrigger: {
             trigger: el,
-            start: "top 80%",
+            start: "top 83%",
             toggleActions: "play none none reverse",
           },
         }
@@ -147,20 +147,23 @@ const Home = () => {
   <div className="absolute inset-0 	bg-[#1e1007]/60 z-10" />
 
   {/* Hero Content */}
-  <div className="relative z-20 max-w-3xl">
-    <h1 className="text-6xl md:text-8xl font-extrabold tracking-wide drop-shadow-2xl mb-6">
-      {t("home.hero_title")}
-    </h1>
-    <p className="text-2xl md:text-3xl text-stone-300 mb-10 leading-relaxed max-w-3xl mx-auto">
-      {t("home.hero_subtitle")}
-    </p>
-    <Link
-      to="/products"
-      className="inline-flex items-center gap-3 bg-amber-600 hover:bg-amber-700 text-white px-10 py-4 rounded-full text-xl shadow-xl transition"
-    >
-      {t("home.view_collection")} <FaArrowRight className="w-5 h-5" />
-    </Link>
-  </div>
+  <div className="relative z-20 max-w-3xl text-center">
+  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight text-white mb-6 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+    {t("home.hero_title")}
+  </h1>
+
+  <p className="text-lg md:text-2xl text-stone-300 mb-10 leading-relaxed">
+    {t("home.hero_subtitle")}
+  </p>
+
+  <Link
+    to="/products"
+    className="inline-flex items-center gap-3 bg-[#3b2f2f] hover:bg-[#2a1d1d] text-white px-8 py-3 rounded-full text-base md:text-lg font-medium shadow-md transition"
+  >
+    {t("home.view_collection")} <FaArrowRight className="w-4 h-4" />
+  </Link>
+</div>
+
 </motion.section>
 
 
@@ -303,81 +306,103 @@ const Home = () => {
 
       {/* Section 3 - Timeline with icons and animated line */}
       
-    <section className="py-28 px-8 bg-[#231a13] max-w-7xl mx-auto relative reveal">
-        <h2 className="text-5xl font-bold mb-16 text-center">{t("home.timeline_title")}</h2>
-        <div className="relative before:absolute before:top-16 before:left-1/2 before:-translate-x-1/2 before:w-1 before:h-[90%] before:bg-amber-600">
-          {[ 
-            { year: "1982", event: t("home.timeline_event1") },
-            { year: "1995", event: t("home.timeline_event2") },
-            { year: "2005", event: t("home.timeline_event3") },
-            { year: "2020", event: t("home.timeline_event4") },
-          ].map(({ year, event }, i) => (
-            <div
-              key={i}
-              className={`mb-20 w-full md:w-1/2 px-8 relative flex flex-col items-center ${
-                i % 2 === 0 ? "md:items-start md:pl-16" : "md:items-end md:pr-16"
-              }`}
-            >
-              <div className="bg-amber-600 rounded-full w-12 h-12 flex items-center justify-center text-black font-bold text-xl shadow-lg">
-                {year}
-              </div>
-              <div className="bg-[#2a1d13] rounded-xl p-6 mt-6 max-w-sm shadow-lg">
-                <p className="text-stone-300 text-lg">{event}</p>
-              </div>
-            </div>
-          ))}
+    <section className="relative py-20 px-6 md:px-12 bg-[#1a120b] text-white reveal">
+  <div className="max-w-3xl mx-auto text-center mb-12">
+    <h2 className="text-3xl md:text-4xl font-bold mb-2">{t("home.timeline_title")}</h2>
+    <p className="text-stone-400 text-sm md:text-base">
+      {t("home.timeline_intro") || "Decades of craftsmanship, shaped by fire and time."}
+    </p>
+  </div>
+
+  <div className="relative border-l border-[#3b2f2f] max-w-2xl mx-auto space-y-12 pl-5">
+    {[
+      { year: "1982", description: t("home.timeline_event1") },
+      { year: "1995", description: t("home.timeline_event2") },
+      { year: "2005", description: t("home.timeline_event3") },
+      { year: "2020", description: t("home.timeline_event4") },
+    ].map(({ year, description }, index) => (
+      <div key={index} className="relative">
+        <div className="absolute -left-3 top-1 w-3 h-3 bg-[#c9a36a] rounded-full border border-[#1a120b]" />
+        <div>
+          <h3 className="text-[#c9a36a] text-sm font-semibold">{year}</h3>
+          <p className="text-stone-300 text-sm">{description}</p>
         </div>
-      </section>
+      </div>
+    ))}
+  </div>
+
+  <div className="mt-16 text-center">
+    <Link
+      to="/about"
+      className="inline-block bg-[#3b2f2f] hover:bg-[#2a1d1d] text-white px-6 py-2.5 rounded-full text-sm font-medium transition"
+    >
+      {t("home.learn_more_button") || "Discover Our Story"}
+    </Link>
+  </div>
+</section>
+
 
       {/* Section 4 - Quote with large image background */}
-      <section
-        className="relative py-32 px-8 bg-cover bg-center bg-no-repeat reveal"
-        style={{ backgroundImage: `url(${artisan2})` }}
-      >
-        <div className="absolute inset-0 bg-black/70" />
-        <div className="relative max-w-4xl mx-auto text-center text-amber-400 space-y-8">
-          <FaQuoteLeft className="mx-auto text-7xl opacity-50" />
-          <p className="text-3xl italic font-serif tracking-wide">{t("home.quote_text")}</p>
-          <p className="text-xl font-semibold">{t("home.quote_author")}</p>
-          <Link
-            to="/contact"
-            className="inline-block mt-6 bg-amber-600 px-8 py-3 rounded-full text-lg font-semibold hover:bg-amber-700 transition"
-          >
-            {t("home.contact_cta")}
-          </Link>
-        </div>
-      </section>
+      <section className="relative py-24 px-6 md:px-10 overflow-hidden bg-[#1a120b] reveal">
+  {/* Optimized background image */}
+  <img
+    src={artisan2}
+    alt="Artisan background"
+    className="absolute inset-0 w-full h-full object-cover object-center z-0"
+    loading="lazy"
+  />
+  <div className="absolute inset-0 bg-black/70 z-10" />
+
+  {/* Quote Content */}
+  <div className="relative z-20 max-w-3xl mx-auto text-center text-[#c9a36a] space-y-6">
+    <FaQuoteLeft className="mx-auto text-5xl opacity-50" />
+    <p className="text-2xl md:text-3xl italic leading-relaxed">
+      {t("home.quote_text") || "Every pipe tells a story — one of patience, fire, and legacy."}
+    </p>
+    <p className="text-base md:text-lg font-medium tracking-wide text-stone-300">
+      — {t("home.quote_author") || "Master Artisan, Telemax" }
+    </p>
+    <Link
+      to="/contact"
+      className="inline-block bg-[#3b2f2f] hover:bg-[#2a1d1d] text-white px-6 py-2.5 rounded-full text-sm font-semibold transition"
+    >
+      {t("home.contact_cta") || "Get in Touch"}
+    </Link>
+  </div>
+</section>
+
 
       {/* Section 5 - Testimonials horizontally scrollable */}
       <section className="py-24 px-6 bg-[#1a120b] max-w-7xl mx-auto reveal">
-        <h2 className="text-5xl font-bold mb-12 text-center">{t("home.testimonials_title")}</h2>
-        <div
-          className="flex overflow-x-auto gap-8 snap-x snap-mandatory px-4"
-          style={{ scrollSnapType: "x mandatory" }}
-        >
-          {[
-            { text: t("home.testimonial1_text"), author: t("home.testimonial1_author") },
-            { text: t("home.testimonial2_text"), author: t("home.testimonial2_author") },
-            { text: t("home.testimonial3_text"), author: t("home.testimonial3_author") },
-          ].map(({ text, author }, i) => (
-            <motion.blockquote
-              key={i}
-              className="snap-center min-w-[320px] max-w-sm bg-[#2a1d13] p-8 rounded-xl shadow-xl flex-shrink-0"
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: i * 0.15 }}
-            >
-              <p className="italic text-stone-300 mb-6">{text}</p>
-              <footer className="text-amber-600 font-semibold">— {author}</footer>
-              <div className="mt-4 flex gap-1 justify-center text-amber-500">
-                {[...Array(5)].map((_, star) => (
-                  <FaStar key={star} />
-                ))}
-              </div>
-            </motion.blockquote>
+  <h2 className="text-5xl font-bold mb-12 text-center text-white">
+    {t("home.testimonials_title")}
+  </h2>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 justify-items-center">
+    {[
+      { text: t("home.testimonial1_text"), author: t("home.testimonial1_author") },
+      { text: t("home.testimonial2_text"), author: t("home.testimonial2_author") },
+      { text: t("home.testimonial3_text"), author: t("home.testimonial3_author") },
+    ].map(({ text, author }, i) => (
+      <motion.blockquote
+        key={i}
+        className="bg-[#2a1d13] p-8 rounded-xl shadow-xl max-w-sm w-full"
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: i * 0.15 }}
+      >
+        <p className="italic text-stone-300 mb-6">"{text}"</p>
+        <footer className="text-[#c9a36a] font-semibold">— {author}</footer>
+        <div className="mt-4 flex gap-1 justify-center text-[#c9a36a]">
+          {[...Array(5)].map((_, star) => (
+            <FaStar key={star} />
           ))}
         </div>
-      </section>
+      </motion.blockquote>
+    ))}
+  </div>
+</section>
+
 
       {/* Section 6 - Gallery with lightbox */}
       <section className="py-32 px-6 bg-[#231a13] text-center reveal">
