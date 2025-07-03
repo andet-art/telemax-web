@@ -405,22 +405,58 @@ const Home = () => {
 
 
       {/* Section 6 - Gallery with lightbox */}
-      <section className="py-32 px-6 bg-[#231a13] text-center reveal">
-        <h2 className="text-5xl font-bold mb-10">{t("home.gallery_title")}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {[pipe1, pipe2, pipe3, artisan2, pipe3, pipe1].map((src, i) => (
-            <LazyLoad key={i} height={250} offset={100} once>
-              <img
-                onClick={() => openModal(src)}
-                src={src}
-                alt={`Gallery image ${i + 1}`}
-                className="rounded-lg shadow-lg cursor-pointer hover:scale-105 transition-transform"
-                loading="lazy"
-              />
-            </LazyLoad>
-          ))}
-        </div>
-      </section>
+      <section className="py-24 px-6 bg-[#231a13] text-center">
+  <h2 className="text-4xl md:text-5xl font-bold mb-14 text-white reveal">
+    {t("home.gallery_title")}
+  </h2>
+
+  <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+    {[pipe1, pipe2, pipe3, artisan2, pipe3, pipe1].map((src, i) => (
+      <LazyLoad key={i} height={200} offset={100} once>
+        <motion.div
+          className="relative group overflow-hidden rounded-xl shadow-lg cursor-pointer"
+          onClick={() => setSelectedImg(src)}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: i * 0.1 }}
+        >
+          <img
+            src={src}
+            alt={`Gallery image ${i + 1}`}
+            className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        </motion.div>
+      </LazyLoad>
+    ))}
+  </div>
+
+  {/* Lightbox Modal */}
+  <AnimatePresence>
+    {selectedImg && (
+      <motion.div
+        className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4"
+        onClick={closeModal}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <motion.img
+          src={selectedImg}
+          alt="Preview"
+          className="max-w-3xl w-full rounded-xl shadow-xl"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.8, opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        />
+      </motion.div>
+    )}
+  </AnimatePresence>
+</section>
+
 
       {/* Modal Lightbox */}
       <Modal
@@ -448,32 +484,42 @@ const Home = () => {
       </Modal>
 
       {/* Section 7 - FAQ with accordions */}
-      <section className="py-24 px-6 bg-[#1a120b] max-w-5xl mx-auto">
-        <h2 className="text-5xl font-bold mb-10 text-center reveal">{t("home.faq_title")}</h2>
-        <FAQ />
-      </section>
+     <section className="py-20 px-6 bg-[#1a120b] text-white max-w-5xl mx-auto">
+  <h2 className="text-4xl md:text-5xl font-bold mb-14 text-center reveal">
+    {t("home.faq_title")}
+  </h2>
+  <div className="space-y-5">
+    <FAQ />
+  </div>
+</section>
+
 
       {/* CMS Integration Placeholder */}
-      <section className="py-24 px-6 bg-[#231a13] text-center reveal max-w-4xl mx-auto">
-        <h2 className="text-3xl font-bold mb-4">Live Updates with Sanity CMS</h2>
-        <p className="text-stone-300 max-w-3xl mx-auto mb-8">
-          This section is connected to a headless CMS (Sanity) and can be edited in real-time without redeploying the site. Ask us how to set it up!
-        </p>
-        <button className="mt-6 bg-amber-600 px-8 py-4 rounded shadow hover:bg-amber-700 transition font-semibold text-lg">
-          Connect Sanity
-        </button>
-      </section>
+      <section className="py-24 px-6 bg-[#1a120b] text-center max-w-4xl mx-auto rounded-xl shadow-xl reveal">
+  <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
+    {t("home.cms_title") ?? "Live Content Editing"}
+  </h2>
+  <p className="text-stone-400 text-lg mb-10 leading-relaxed">
+    {t("home.cms_description") ??
+      "Easily manage your content using Sanity CMS — no code, no redeploy. Update product details, text, and media in real time."}
+  </p>
+  <button className="bg-[#3b2f2f] hover:bg-[#2a1d1d] text-white px-8 py-3 rounded-full text-lg font-medium transition shadow-lg">
+    {t("home.connect_sanity") ?? "Connect Sanity CMS"}
+  </button>
+</section>
+
 
       {/* Scroll To Top */}
       {showScrollTop && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 p-3 bg-amber-600 hover:bg-amber-700 rounded-full text-white shadow-lg transition-all"
-          aria-label="Scroll to top"
-        >
-          ↑
-        </button>
-      )}
+  <button
+    onClick={scrollToTop}
+    className="fixed bottom-6 right-6 z-50 p-3 bg-[#3b2f2f] hover:bg-[#2a1d1d] rounded-full text-white shadow-xl transition-all duration-300"
+    aria-label="Scroll to top"
+  >
+    ↑
+  </button>
+)}
+
     </div>
   );
 };
