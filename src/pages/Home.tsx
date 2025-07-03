@@ -1,36 +1,77 @@
+// ✅ React & Core Hooks
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import Lenis from "@studio-freight/lenis";
+
+// ✅ Routing & Translations
 import { Link } from "react-router-dom";
+import { useLang } from "../context/LanguageContext";
+
+// ✅ Animation & Scrolling
+import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
-import LazyLoad from "react-lazyload";
+import Lenis from "@studio-freight/lenis";
+
+// ✅ UI & Carousel
+import Slider from "react-slick";
 import Modal from "react-modal";
+import LazyLoad from "react-lazyload";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
+// ✅ Icons
 import { FaCheckCircle, FaStar, FaQuoteLeft, FaArrowRight } from "react-icons/fa";
-gsap.registerPlugin(ScrollTrigger);
 
-
+// ✅ Media & Assets
 import heroVideo from "../assets/hero-home.mp4";
-import woodBg from "../assets/wood-bg.jpg"; // or whatever yours is
-
+import woodBg from "../assets/wood-bg.jpg";
 import pipe1 from "../assets/pipe1.jpg";
 import pipe2 from "../assets/pipe2.jpg";
 import pipe3 from "../assets/pipe3.jpg";
 import artisanImg from "../assets/artisan.jpg";
 import artisan2 from "../assets/artisan2.jpg";
 import smokeGif from "../assets/smoke.gif";
-import { useLang } from "../context/LanguageContext";
+
+// ✅ Register GSAP plugins
+gsap.registerPlugin(ScrollTrigger);
+
 
 const Home = () => {
-  const pipes = [pipe1, pipe2, pipe3];
   const { t } = useLang();
+  const pipes = [pipe1, pipe2, pipe3];
+
+  // 🔹 UI State
   const [showScrollTop, setShowScrollTop] = useState(false);
-  
-  // Lightbox modal state
+  const [selectedImg, setSelectedImg] = useState<string | null>(null);
+
+  // 🔹 Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState<string | null>(null);
 
-  // Lenis smooth scroll
+  // 🔹 Carousel Settings
+  const settings = {
+  centerMode: true,
+  centerPadding: "0px",
+  slidesToShow: 3,
+  infinite: true,
+  autoplay: true,
+  autoplaySpeed: 3000,
+  speed: 600,
+  arrows: false,
+  dots: false, // ✅ Removed dots
+  pauseOnHover: false, // ✅ Keeps moving on hover
+  responsive: [
+    {
+      breakpoint: 1024,
+      settings: {
+        slidesToShow: 1,
+        centerMode: false,
+      },
+    },
+  ],
+};
+
+
+  // ✅ Smooth Scroll with Lenis
   useEffect(() => {
     const lenis = new Lenis();
     function raf(time: number) {
@@ -44,7 +85,7 @@ const Home = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // GSAP ScrollTrigger animations
+  // ✅ GSAP ScrollTrigger Animation Setup
   useEffect(() => {
     gsap.utils.toArray(".reveal").forEach((el: any) => {
       gsap.fromTo(
@@ -65,7 +106,7 @@ const Home = () => {
     });
   }, []);
 
-  // Open lightbox modal
+  // ✅ Modal Functions
   const openModal = (src: string) => {
     setModalImage(src);
     setIsModalOpen(true);
@@ -76,7 +117,11 @@ const Home = () => {
     setModalImage(null);
   };
 
+  // ✅ Scroll to top
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  // ... return JSX ...
+
 
   return (
     <div className="bg-[#1a120b] text-white overflow-hidden font-serif">
@@ -189,34 +234,72 @@ const Home = () => {
 </section>
 
       {/* Section 2 - Grid cards + hover animations */}
-      <section className="py-28 px-8 bg-[#1b130e] max-w-7xl mx-auto reveal">
-        <h2 className="text-5xl font-bold mb-16 text-center">{t("home.section2_title")}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
-          {[pipe1, pipe2, pipe3].map((img, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ scale: 1.05, boxShadow: "0 10px 20px rgba(255, 165, 0, 0.6)" }}
-              transition={{ duration: 0.3 }}
-              className="bg-[#2a1d13] rounded-xl p-6 flex flex-col items-center cursor-pointer"
+      <section className="py-16 px-6 md:px-10 bg-[#1b130e] w-full reveal">
+  <h2 className="text-4xl md:text-5xl font-bold mb-16 text-center text-white">
+    {t("home.section2_title")}
+  </h2>
+
+  <div className="overflow-hidden">
+    <Slider {...settings} className="no-scrollbar">
+      {[pipe1, pipe2, pipe3].map((img, i) => (
+        <div key={i} className="px-4 py-6">
+          <motion.div
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 10px 25px rgba(201, 163, 106, 0.3)",
+            }}
+            transition={{ duration: 0.3 }}
+            className="bg-[#2a1d13] rounded-xl p-4 max-w-sm mx-auto flex flex-col items-center shadow-md"
+          >
+            <img
+              src={img}
+              alt={`Model ${i + 1}`}
+              className="rounded-lg mb-4 w-full object-cover h-56"
+              loading="lazy"
+            />
+            <h3 className="text-xl font-semibold mb-1 text-white">
+              {t("home.model")} {i + 1}
+            </h3>
+            <p className="text-sm text-[#c9a36a] font-medium mb-1">$149 · Handmade</p>
+            <p className="text-stone-400 text-center text-sm">{t("home.model_sub")}</p>
+            <button
+              onClick={() => setSelectedImg(img)}
+              className="mt-4 bg-[#3b2f2f] hover:bg-[#2a1d1d] text-white text-sm font-medium px-5 py-2 rounded-full transition shadow"
             >
-              <img
-                src={img}
-                alt={`Model ${i + 1}`}
-                className="rounded-lg mb-6 w-full object-cover h-72"
-                loading="lazy"
-              />
-              <h3 className="text-2xl font-semibold mb-3">{t("home.model")} {i + 1}</h3>
-              <p className="text-stone-400 text-center">{t("home.model_sub")}</p>
-              <button
-                onClick={() => openModal(img)}
-                className="mt-6 bg-amber-600 px-5 py-2 rounded-full font-semibold text-white hover:bg-amber-700 transition"
-              >
-                {t("home.view_detail")}
-              </button>
-            </motion.div>
-          ))}
+              {t("home.view_detail")}
+            </button>
+          </motion.div>
         </div>
-      </section>
+      ))}
+    </Slider>
+  </div>
+
+  {/* Modal Preview */}
+  <AnimatePresence>
+    {selectedImg && (
+      <motion.div
+        className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center px-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={() => setSelectedImg(null)}
+      >
+        <motion.img
+          src={selectedImg}
+          alt="Enlarged preview"
+          className="max-w-3xl w-full rounded-lg shadow-xl"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.8, opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        />
+      </motion.div>
+    )}
+  </AnimatePresence>
+</section>
+
+
+
 
       {/* Section 3 - Timeline with icons and animated line */}
       
