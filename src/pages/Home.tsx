@@ -11,6 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 
 import heroVideo from "../assets/hero-home.mp4";
+import woodBg from "../assets/wood-bg.jpg"; // or whatever yours is
 
 import pipe1 from "../assets/pipe1.jpg";
 import pipe2 from "../assets/pipe2.jpg";
@@ -119,30 +120,73 @@ const Home = () => {
 
 
       {/* Section 1 - Feature List + Large Image + Quote */}
-      <section className="py-28 px-8 bg-[#231a13] flex flex-col md:flex-row items-center max-w-7xl mx-auto gap-20 reveal">
-        <div className="md:w-1/2 space-y-10">
-          <h2 className="text-5xl font-bold mb-6">{t("home.section1_title")}</h2>
-          <ul className="space-y-6">
-            {[
-              t("home.section1_feat1"),
-              t("home.section1_feat2"),
-              t("home.section1_feat3"),
-              t("home.section1_feat4"),
-            ].map((feat, i) => (
-              <li key={i} className="flex items-center gap-4 text-lg text-stone-300">
-                <FaCheckCircle className="text-amber-500 w-7 h-7 flex-shrink-0" />
-                {feat}
-              </li>
-            ))}
-          </ul>
-          <blockquote className="italic text-amber-500 text-xl mt-8 border-l-4 border-amber-600 pl-6 max-w-xl">
-            {t("home.section1_quote")}
-          </blockquote>
-        </div>
-        <div className="md:w-1/2 rounded-xl shadow-2xl overflow-hidden">
-          <img src={artisanImg} alt="Craftsmanship" className="w-full object-cover rounded-xl" />
-        </div>
-      </section>
+<section
+  className="relative py-16 px-6 md:px-10 text-white"
+  style={{
+    backgroundImage: `url(${woodBg})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  }}
+>
+  {/* Dark overlay */}
+  <div className="absolute inset-0 bg-[#1b1008]/95 z-0" />
+
+  <div className="relative z-10 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
+    
+    {/* Left Content */}
+    <motion.div
+      className="md:w-1/2 space-y-6"
+      initial={{ opacity: 0, x: -40 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.8 }}
+      viewport={{ once: true }}
+    >
+      <h2 className="text-3xl md:text-4xl font-bold leading-snug">
+        {t("home.section1_title")}
+      </h2>
+
+      <ul className="space-y-3">
+        {[
+          t("home.section1_feat1"),
+          t("home.section1_feat2"),
+          t("home.section1_feat3"),
+          t("home.section1_feat4"),
+        ].map((feat, i) => (
+          <li key={i} className="flex items-start gap-3 text-base text-stone-300">
+            <FaCheckCircle className="text-[#c9a36a] w-5 h-5 mt-1 flex-shrink-0" />
+            <span>{feat}</span>
+          </li>
+        ))}
+      </ul>
+
+      <blockquote className="italic text-[#c9a36a] text-base border-l-4 border-[#c9a36a] pl-4 max-w-xl mt-4">
+        {t("home.section1_quote")}
+      </blockquote>
+
+      <Link
+        to="/about"
+        className="inline-block mt-4 text-sm font-medium bg-[#3b2f2f] hover:bg-[#2a1d1d] transition text-white px-5 py-2.5 rounded-full shadow"
+      >
+        {t("home.learn_more_button") || "Learn More"}
+      </Link>
+    </motion.div>
+
+    {/* Right Image */}
+    <motion.div
+      className="md:w-1/2 flex justify-center"
+      initial={{ opacity: 0, x: 40 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.8 }}
+      viewport={{ once: true }}
+    >
+      <img
+        src={artisanImg}
+        alt="Craftsmanship"
+        className="w-full md:w-[80%] object-cover rounded-2xl shadow-xl transition-transform duration-500 hover:scale-105"
+      />
+    </motion.div>
+  </div>
+</section>
 
       {/* Section 2 - Grid cards + hover animations */}
       <section className="py-28 px-8 bg-[#1b130e] max-w-7xl mx-auto reveal">
