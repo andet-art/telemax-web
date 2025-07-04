@@ -1,17 +1,10 @@
-// ✅ React & Core Hooks
 import { useState } from "react";
-
-// ✅ Routing
 import { useNavigate, Link } from "react-router-dom";
-
-// ✅ Animation & Toasts
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
-
-// ✅ Context
+import heroVideo from "../assets/hero-home.mp4";
 import { useCart } from "../context/CartContext";
 
-// ✅ Data
 const demoProducts = [
   {
     id: 1,
@@ -42,8 +35,11 @@ const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("newest");
   const [activeStatus, setActiveStatus] = useState("All");
-  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const itemsPerPage = 6;
 
+  const navigate = useNavigate();
   const { cart, addToCart } = useCart();
 
   const handleAddToCart = (item: any, quantity = 1) => {
@@ -76,22 +72,37 @@ const Orders = () => {
     }
   });
 
+  const paginatedOrders = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <>
       <Toaster position="top-right" />
-      <main className="pt-32 min-h-screen bg-[#1a120b] text-white px-4 font-serif">
-        <div className="max-w-6xl mx-auto">
+      <main className="relative min-h-screen text-white font-serif overflow-hidden">
+        <video
+          src={heroVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
+        <div className="absolute inset-0 bg-black/70 z-10" />
+
+        <div className="relative z-20 pt-40 px-4 pb-24 max-w-6xl mx-auto">
           <motion.h1
-            className="text-4xl sm:text-5xl font-bold mb-10 text-center text-white reveal"
+            className="text-4xl sm:text-5xl font-bold mb-10 text-center drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
           >
             Your Orders
           </motion.h1>
 
-          {/* Filters */}
-          <motion.div
-            className="flex justify-center gap-4 mb-6 flex-wrap reveal"
+                    <motion.div
+            className="flex justify-center gap-4 mb-10 flex-wrap"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
@@ -99,7 +110,10 @@ const Orders = () => {
             {statusTabs.map((status) => (
               <button
                 key={status}
-                onClick={() => setActiveStatus(status)}
+                onClick={() => {
+                  setCurrentPage(1);
+                  setActiveStatus(status);
+                }}
                 className={`px-4 py-2 rounded-full font-medium transition text-sm sm:text-base ${
                   activeStatus === status
                     ? "bg-[#c9a36a] text-black shadow-md"
@@ -111,9 +125,8 @@ const Orders = () => {
             ))}
           </motion.div>
 
-          {/* Enhanced Search & Sort */}
           <motion.section
-            className="relative w-full max-w-5xl mx-auto rounded-xl overflow-hidden bg-[#2a1d13] border border-stone-700 px-6 py-8 mb-10 reveal"
+            className="relative w-full max-w-5xl mx-auto rounded-xl overflow-hidden bg-[#2a1d13] border border-stone-700 px-6 py-8 mb-12"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -140,42 +153,77 @@ const Orders = () => {
             </div>
           </motion.section>
 
-          {/* Product Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.length === 0 ? (
+            {paginatedOrders.length === 0 ? (
               <div className="col-span-full text-center text-stone-400 py-20">
                 <p className="text-2xl mb-2">😕 No results found</p>
                 <p className="text-sm">Try adjusting your filters or search terms.</p>
               </div>
             ) : (
-              filteredProducts.map((order, index) => (
+              paginatedOrders.map((order, index) => (
                 <motion.div
                   key={order.id}
-                  className="bg-[#2a1d13] border border-stone-700 rounded-2xl p-5 shadow-lg hover:border-[#c9a36a] hover:shadow-[#c9a36a]/30 transition-all flex flex-col reveal"
+                  onClick={() => setSelectedOrder(order)}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.03 }}
+                  className="cursor-pointer bg-[#1a120b] border border-[#2a1d13] hover:border-[#c9a36a]/40 transition-all duration-300 shadow-md hover:shadow-[#c9a36a]/20 rounded-2xl p-5 flex flex-col group"
                 >
-                  <img
-                    src={order.image}
-                    alt={order.product}
-                    className="w-full h-48 object-cover rounded-xl mb-4"
-                  />
-                  <h2 className="text-xl font-semibold mb-1 text-white">{order.product}</h2>
-                  <p className="text-sm text-stone-400 mb-1">
-                    🗓 {order.date}
-                  </p>
-                  <p className="text-sm text-stone-400 mb-4">
-                    🚚 Status: <span className="text-[#c9a36a]">{order.status}</span>
-                  </p>
+                  <div className="overflow-hidden rounded-xl mb-4">
+                    <img
+                      src={order.image}
+                      alt={order.product}
+                      className="w-full h-48 object-cover rounded-xl transition-transform duration-300 group-hover:scale-105 opacity-90"
+                    />
+                  </div>
+                  <h2 className="text-lg sm:text-xl font-semibold text-white mb-1">
+                    {order.product}
+                  </h2>
+                  <p className="text-sm text-stone-400 mb-1">🗓 {order.date}</p>
+                  <span
+                    className={`inline-block text-xs font-medium px-3 py-1 rounded-full mb-4 w-fit ${
+                      order.status === "Shipped"
+                        ? "bg-blue-800 text-blue-300"
+                        : order.status === "Processing"
+                        ? "bg-yellow-800 text-yellow-300"
+                        : order.status === "Delivered"
+                        ? "bg-green-800 text-green-300"
+                        : "bg-stone-700 text-stone-300"
+                    }`}
+                  >
+                    {order.status}
+                  </span>
                   <QuantityAddToCartButton item={order} onAdd={handleAddToCart} />
                 </motion.div>
               ))
             )}
           </div>
+
+          <div className="mt-12 flex justify-center gap-2 text-sm">
+            {Array.from({
+              length: Math.ceil(filteredProducts.length / itemsPerPage),
+            }).map((_, i) => {
+              const page = i + 1;
+              const isActive = page === currentPage;
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-4 py-2 rounded-md border ${
+                    isActive
+                      ? "bg-[#c9a36a] text-black border-[#c9a36a]"
+                      : "bg-[#2a1d13] text-white border-stone-700 hover:bg-[#3b2f2f]"
+                  } transition`}
+                >
+                  {page}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Floating Cart Button */}
         {cart.length > 0 && (
           <motion.button
             className="fixed bottom-6 right-6 bg-[#c9a36a] text-black px-6 py-3 rounded-full shadow-lg hover:brightness-110 transition-transform active:scale-95 z-50"
@@ -186,6 +234,45 @@ const Orders = () => {
             🛒 View Cart ({cart.reduce((acc, i) => acc + i.quantity, 0)})
           </motion.button>
         )}
+
+        <AnimatePresence>
+          {selectedOrder && (
+            <motion.div
+              className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center px-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedOrder(null)}
+            >
+              <motion.div
+                onClick={(e) => e.stopPropagation()}
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-[#1a120b] rounded-2xl p-6 max-w-lg w-full text-white shadow-xl"
+              >
+                <h2 className="text-xl font-semibold mb-4">{selectedOrder.product}</h2>
+                <img
+                  src={selectedOrder.image}
+                  alt={selectedOrder.product}
+                  className="w-full h-56 object-cover rounded-lg mb-4"
+                />
+                <p className="text-sm text-stone-400 mb-2">🗓 {selectedOrder.date}</p>
+                <p className="text-sm text-stone-400 mb-6">
+                  Status: <span className="text-[#c9a36a] font-medium">{selectedOrder.status}</span>
+                </p>
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="bg-[#c9a36a] text-black px-4 py-2 rounded-md hover:bg-[#b8915b] transition w-full"
+                >
+                  Close
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
       </main>
     </>
   );
@@ -215,7 +302,7 @@ const QuantityAddToCartButton = ({
       <motion.button
         whileTap={{ scale: 0.95 }}
         onClick={() => onAdd(item, quantity)}
-        className="bg-[#c9a36a] hover:bg-[#b48a59] px-5 py-2 rounded-md font-medium text-black shadow-md transition"
+        className="bg-[#c9a36a] hover:bg-[#b8915b] px-5 py-2 rounded-md font-medium text-black shadow-md transition"
       >
         + Add
       </motion.button>
