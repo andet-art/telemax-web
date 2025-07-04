@@ -3,8 +3,8 @@
 
 $host    = 'localhost';
 $db      = 'telemax';
-$user    = 'gerti';      // or 'root'
-$pass    = '123';        // or '' for root on XAMPP
+$user    = 'root';      // Default XAMPP user
+$pass    = '';          // Default XAMPP password is empty
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
