@@ -1,4 +1,14 @@
 <?php
+// Extend session lifetime to 30 minutes
+ini_set('session.gc_maxlifetime', 1800);
+session_set_cookie_params([
+    'lifetime' => 1800,
+    'path' => '/',
+    'secure' => false, // Set to true in production (HTTPS)
+    'httponly' => true,
+    'samesite' => 'Lax',
+]);
+
 session_start();
 header('Content-Type: application/json');
 
@@ -28,9 +38,9 @@ if (!isset($_SESSION['user_id'])) {
 echo json_encode([
     'success' => true,
     'user' => [
-        'id' => $_SESSION['user_id'],
-        'name' => $_SESSION['name'] ?? 'Unknown',
-        'email' => $_SESSION['email'] ?? '',
-        'joined' => $_SESSION['joined'] ?? ''
+        'id'     => $_SESSION['user_id'],
+        'name'   => $_SESSION['name'] ?? 'Unknown',
+        'email'  => $_SESSION['email'] ?? '',
+        'joined' => $_SESSION['joined'] ?? '',
     ]
 ]);
