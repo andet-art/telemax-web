@@ -24,13 +24,15 @@ const SignIn = () => {
       const res = await fetch("/api/signin.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
         credentials: "include",
+        body: JSON.stringify(form),
       });
+
       const data = await res.json();
+
       if (res.ok && data.success) {
         localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/home");
+        navigate("/profile"); // ✅ redirect to profile
       } else {
         setError(data.message || "Sign in failed");
       }
@@ -60,6 +62,7 @@ const SignIn = () => {
             type="email"
             name="email"
             placeholder="Email"
+            autoComplete="email"
             value={form.email}
             onChange={handleChange}
             className="w-full bg-[#13100d] text-white placeholder:text-stone-400 px-4 py-2 rounded-md border border-stone-700 focus:outline-none focus:ring-2 focus:ring-[#c9a36a]"
@@ -69,6 +72,7 @@ const SignIn = () => {
             type="password"
             name="password"
             placeholder="Password"
+            autoComplete="current-password"
             value={form.password}
             onChange={handleChange}
             className="w-full bg-[#13100d] text-white placeholder:text-stone-400 px-4 py-2 rounded-md border border-stone-700 focus:outline-none focus:ring-2 focus:ring-[#c9a36a]"

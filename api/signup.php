@@ -1,58 +1,63 @@
 <?php
-// telemax/api/signup.php
-
+session_start();
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+
+// ✅ CORS Headers
+header('Access-Control-Allow-Origin: http://localhost:5173');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: true');
 
+// ✅ Handle CORS preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-  exit; // CORS preflight
+    http_response_code(200);
+    exit;
 }
 
-require __DIR__ . '/db_config.php';
+// ✅ Include DB config
+require 'db_config.php';
 
-$input = json_decode(file_get_contents('php://input'), true);
-$name     = trim($input['name'] ?? '');
-$email    = trim($input['email'] ?? '');
-$password = $input['password'] ?? '';
+// ✅ Read and sanitize input
+$data = json_decode(file_get_contents('php://input'), true);
+$name = trim($data['name'] ?? '');
+$email = trim($data['email'] ?? '');
+$password = $data['password'] ?? '';
 
-// 1) Name required
-if (empty($name)) {
-  http_response_code(400);
-  echo json_encode(['success' => false, 'message' => 'Name is required']);
-  exit;
+// ✅ Validate input
+if (empty($name) || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 6) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid input']);
+    exit;
 }
 
-// 2) Valid email
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-  http_response_code(400);
-  echo json_encode(['success' => false, 'message' => 'Invalid email address']);
-  exit;
-}
-
-// 3) Password length
-if (strlen($password) < 6) {
-  http_response_code(400);
-  echo json_encode(['success' => false, 'message' => 'Password must be ≥ 6 characters']);
-  exit;
-}
-
-// 4) Email uniqueness
+// ✅ Check if user already exists
 $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
 $stmt->execute([$email]);
 if ($stmt->fetch()) {
-  http_response_code(409);
-  echo json_encode(['success' => false, 'message' => 'Email already registered']);
-  exit;
+    http_response_code(409);
+    echo json_encode(['success' => false, 'message' => 'Email already registered']);
+    exit;
 }
 
-// 5) Insert user
-$hash = password_hash($password, PASSWORD_DEFAULT);
-$stmt = $pdo->prepare('INSERT INTO users (name, email, password) VALUES (?, ?, ?)');
-if ($stmt->execute([$name, $email, $hash])) {
-  echo json_encode(['success' => true, 'message' => 'User registered!']);
-} else {
-  http_response_code(500);
-  echo json_encode(['success' => false, 'message' => 'Registration failed']);
-}
+// ✅ Hash password and insert
+$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+$stmt = $pdo->prepare('INSERT INTO users (name, email, password, created_at) VALUES (?, ?, ?, NOW())');
+$stmt->execute([$name, $email, $hashedPassword]);
+
+$userId = $pdo->lastInsertId();
+
+// ✅ Store session
+$_SESSION['user_id'] = $userId;
+$_SESSION['name'] = $name;
+$_SESSION['email'] = $email;
+$_SESSION['joined'] = date("Y-m-d");
+
+echo json_encode([
+    'success' => true,
+    'message' => 'Signup successful',
+    'user' => [
+        'id' => $userId,
+        'name' => $name,
+        'email' => $email,
+    ]
+]);

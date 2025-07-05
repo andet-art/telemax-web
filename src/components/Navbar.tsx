@@ -39,7 +39,17 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/logout.php", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+
     localStorage.removeItem("user");
     setUser(null);
     navigate("/signin");
@@ -117,11 +127,13 @@ const Navbar = () => {
 
           {user ? (
             <>
-              <Link to="/profile">
-                <Button variant="outline" className="hover:border-amber-500">
-                  {t("profile")}
-                </Button>
-              </Link>
+              <Button
+                variant="outline"
+                className="hover:border-amber-500"
+                onClick={() => scrollToTopAndNavigate("/profile")}
+              >
+                {t("profile")}
+              </Button>
               <Button
                 variant="ghost"
                 onClick={handleLogout}
@@ -193,11 +205,13 @@ const Navbar = () => {
 
               {user ? (
                 <>
-                  <Link to="/profile" onClick={() => setOpen(false)}>
-                    <Button className="w-full" variant="outline">
-                      {t("profile")}
-                    </Button>
-                  </Link>
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                    onClick={() => scrollToTopAndNavigate("/profile")}
+                  >
+                    {t("profile")}
+                  </Button>
                   <Button
                     className="w-full"
                     variant="ghost"

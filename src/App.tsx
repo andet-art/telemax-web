@@ -9,6 +9,7 @@ import Cart from "./pages/cart";
 import SignIn from "./pages/signin";
 import SignUp from "./pages/signup";
 import Checkout from "./pages/Checkout"; // ✅ Import Checkout page
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/checkout" element={<Checkout />} /> {/* ✅ Correct placement */}
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </MainLayout>
     </Router>
