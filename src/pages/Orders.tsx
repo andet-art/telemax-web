@@ -91,7 +91,7 @@ const Orders = () => {
             Your Orders
           </motion.h1>
 
-                    <motion.div
+          <motion.div
             className="flex justify-center gap-4 mb-10 flex-wrap"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -138,12 +138,12 @@ const Orders = () => {
                 <option value="za">🔤 Z–A</option>
               </select>
             </div>
-          </motion.section>
+          </motion.div>
 
           {/* Product Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.length === 0 ? (
-              <div className="col-span-full text-center text-stone-400 py-20">
+              <motion.div className="col-span-full text-center text-stone-400 py-20">
                 <p className="text-2xl mb-2">😕 No results found</p>
                 <p className="text-sm">Try adjusting your filters or search terms.</p>
               </motion.div>
@@ -223,7 +223,6 @@ const Orders = () => {
             </motion.div>
           )}
         </AnimatePresence>
-        
       </main>
     </>
   );
