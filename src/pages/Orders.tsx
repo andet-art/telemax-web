@@ -42,7 +42,7 @@ const Orders = () => {
   const navigate = useNavigate();
   const { cart, addToCart } = useCart();
 
-  const handleAddToCart = (item, quantity = 1) => {
+  const handleAddToCart = (item: any, quantity = 1) => {
     addToCart(item, quantity);
     toast.success(`Added ${quantity} × ${item.product} to cart!`);
   };
@@ -60,9 +60,9 @@ const Orders = () => {
   filteredProducts.sort((a, b) => {
     switch (sortOption) {
       case "newest":
-        return new Date(b.date) - new Date(a.date);
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
       case "oldest":
-        return new Date(a.date) - new Date(b.date);
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
       case "az":
         return a.product.localeCompare(b.product);
       case "za":
@@ -80,8 +80,18 @@ const Orders = () => {
   return (
     <>
       <Toaster position="top-right" />
-      <main className="pt-32 min-h-screen bg-gradient-to-br from-stone-900 via-stone-950 to-black text-white px-4">
-        <div className="max-w-6xl mx-auto">
+      <main className="relative min-h-screen text-white font-serif overflow-hidden">
+        <video
+          src={heroVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
+        <div className="absolute inset-0 bg-black/70 z-10" />
+
+        <div className="relative z-20 pt-40 px-4 pb-24 max-w-6xl mx-auto">
           <motion.h1
             className="text-4xl sm:text-5xl font-bold mb-10 text-center drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
             initial={{ opacity: 0, y: -20 }}
@@ -91,33 +101,36 @@ const Orders = () => {
             Your Orders
           </motion.h1>
 
-                    <motion.div
+          <motion.div
             className="flex justify-center gap-4 mb-10 flex-wrap"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
           >
             {statusTabs.map((status) => (
-              <motion.button
+              <button
                 key={status}
-                onClick={() => setActiveStatus(status)}
-                className={`px-4 py-2 rounded-full font-medium transition ${
+                onClick={() => {
+                  setCurrentPage(1);
+                  setActiveStatus(status);
+                }}
+                className={`px-4 py-2 rounded-full font-medium transition text-sm sm:text-base ${
                   activeStatus === status
                     ? "bg-[#c9a36a] text-black shadow-md"
                     : "bg-[#2a1d13] text-stone-300 hover:bg-[#c9a36a] hover:text-black"
                 } focus:outline-none focus:ring-2 focus:ring-[#c9a36a]`}
               >
                 {status}
-              </motion.button>
+              </button>
             ))}
           </motion.div>
 
-          {/* Search & Sort */}
-          <motion.div
-            className="flex flex-col md:flex-row items-center justify-between gap-4 mb-10 bg-stone-900 p-4 rounded-xl shadow border border-stone-700"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.15 }}
+          <motion.section
+            className="relative w-full max-w-5xl mx-auto rounded-xl overflow-hidden bg-[#2a1d13] border border-stone-700 px-6 py-8 mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
             <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
               <input
@@ -140,38 +153,74 @@ const Orders = () => {
             </div>
           </motion.section>
 
-          {/* Product Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.length === 0 ? (
+            {paginatedOrders.length === 0 ? (
               <div className="col-span-full text-center text-stone-400 py-20">
                 <p className="text-2xl mb-2">😕 No results found</p>
                 <p className="text-sm">Try adjusting your filters or search terms.</p>
-              </motion.div>
+              </div>
             ) : (
               paginatedOrders.map((order, index) => (
                 <motion.div
                   key={order.id}
                   onClick={() => setSelectedOrder(order)}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.03 }}
+                  className="cursor-pointer bg-[#1a120b] border border-[#2a1d13] hover:border-[#c9a36a]/40 transition-all duration-300 shadow-md hover:shadow-[#c9a36a]/20 rounded-2xl p-5 flex flex-col group"
                 >
-                  <img
-                    src={order.image}
-                    alt={order.product}
-                    className="w-full h-48 object-cover rounded-xl mb-4"
-                  />
-                  <h2 className="text-xl font-semibold mb-1">{order.product}</h2>
-                  <p className="text-sm text-stone-400 mb-1">
-                    🗓 {order.date}
-                  </p>
-                  <p className="text-sm text-stone-400 mb-4">
-                    🚚 Status: <span className="text-white">{order.status}</span>
-                  </p>
+                  <div className="overflow-hidden rounded-xl mb-4">
+                    <img
+                      src={order.image}
+                      alt={order.product}
+                      className="w-full h-48 object-cover rounded-xl transition-transform duration-300 group-hover:scale-105 opacity-90"
+                    />
+                  </div>
+                  <h2 className="text-lg sm:text-xl font-semibold text-white mb-1">
+                    {order.product}
+                  </h2>
+                  <p className="text-sm text-stone-400 mb-1">🗓 {order.date}</p>
+                  <span
+                    className={`inline-block text-xs font-medium px-3 py-1 rounded-full mb-4 w-fit ${
+                      order.status === "Shipped"
+                        ? "bg-blue-800 text-blue-300"
+                        : order.status === "Processing"
+                        ? "bg-yellow-800 text-yellow-300"
+                        : order.status === "Delivered"
+                        ? "bg-green-800 text-green-300"
+                        : "bg-stone-700 text-stone-300"
+                    }`}
+                  >
+                    {order.status}
+                  </span>
                   <QuantityAddToCartButton item={order} onAdd={handleAddToCart} />
                 </motion.div>
               ))
             )}
+          </div>
+
+          <div className="mt-12 flex justify-center gap-2 text-sm">
+            {Array.from({
+              length: Math.ceil(filteredProducts.length / itemsPerPage),
+            }).map((_, i) => {
+              const page = i + 1;
+              const isActive = page === currentPage;
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-4 py-2 rounded-md border ${
+                    isActive
+                      ? "bg-[#c9a36a] text-black border-[#c9a36a]"
+                      : "bg-[#2a1d13] text-white border-stone-700 hover:bg-[#3b2f2f]"
+                  } transition`}
+                >
+                  {page}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -223,17 +272,22 @@ const Orders = () => {
             </motion.div>
           )}
         </AnimatePresence>
-        
       </main>
     </>
   );
 };
 
-const QuantityAddToCartButton = ({ item, onAdd }) => {
+const QuantityAddToCartButton = ({
+  item,
+  onAdd,
+}: {
+  item: any;
+  onAdd: (item: any, quantity: number) => void;
+}) => {
   const [quantity, setQuantity] = useState(1);
 
   return (
-    <motion.div className="mt-auto flex items-center gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <div className="mt-auto flex items-center gap-2">
       <input
         type="number"
         min={1}
@@ -251,7 +305,7 @@ const QuantityAddToCartButton = ({ item, onAdd }) => {
       >
         + Add
       </motion.button>
-    </motion.div>
+    </div>
   );
 };
 
