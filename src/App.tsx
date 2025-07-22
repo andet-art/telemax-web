@@ -10,6 +10,7 @@ import SignIn from "./pages/signin";
 import SignUp from "./pages/signup";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
+import Payment from "./pages/Payment"; 
 import Payment from "./pages/Payment";
 import CustomImageCustomizer from "./pages/CustomImageCustomizer";
 
