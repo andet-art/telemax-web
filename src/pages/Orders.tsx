@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import heroVideo from "../assets/hero-home.mp4";
@@ -27,9 +27,25 @@ const demoProducts = [
     status: "Delivered",
     image: "https://placehold.co/300x300?text=Pipe+3",
   },
+  {
+    id: 4,
+    product: "Custom Pipe",
+    date: "2025-07-19",
+    status: "Custom",
+    image: "/assets/custom-pipe.jpg",
+    isCustom: true,
+  },
+  {
+    id: 5,
+    product: "Luxury Ebony Custom Pipe",
+    date: "2025-07-20",
+    status: "Custom",
+    image: "/assets/custom-ebony.jpg",
+    isCustom: true,
+  },
 ];
 
-const statusTabs = ["All", "Shipped", "Processing", "Delivered"];
+const statusTabs = ["All", "Shipped", "Processing", "Delivered", "Custom"];
 
 const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -151,56 +167,95 @@ const Orders = () => {
                 <option value="za">🔤 Z–A</option>
               </select>
             </div>
-          </motion.div>
+          </motion.section>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-=======
             {paginatedOrders.length === 0 ? (
               <div className="col-span-full text-center text-stone-400 py-20">
->>>>>>> 530c86fde75a0a7f62da49fa56922d393bbf6acf
                 <p className="text-2xl mb-2">😕 No results found</p>
                 <p className="text-sm">Try adjusting your filters or search terms.</p>
               </div>
             ) : (
-              paginatedOrders.map((order, index) => (
-                <motion.div
-                  key={order.id}
-                  onClick={() => setSelectedOrder(order)}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                  viewport={{ once: true }}
-                  whileHover={{ scale: 1.03 }}
-                  className="cursor-pointer bg-[#1a120b] border border-[#2a1d13] hover:border-[#c9a36a]/40 transition-all duration-300 shadow-md hover:shadow-[#c9a36a]/20 rounded-2xl p-5 flex flex-col group"
-                >
-                  <div className="overflow-hidden rounded-xl mb-4">
-                    <img
-                      src={order.image}
-                      alt={order.product}
-                      className="w-full h-48 object-cover rounded-xl transition-transform duration-300 group-hover:scale-105 opacity-90"
-                    />
-                  </div>
-                  <h2 className="text-lg sm:text-xl font-semibold text-white mb-1">
-                    {order.product}
-                  </h2>
-                  <p className="text-sm text-stone-400 mb-1">🗓 {order.date}</p>
-                  <span
-                    className={`inline-block text-xs font-medium px-3 py-1 rounded-full mb-4 w-fit ${
-                      order.status === "Shipped"
-                        ? "bg-blue-800 text-blue-300"
-                        : order.status === "Processing"
-                        ? "bg-yellow-800 text-yellow-300"
-                        : order.status === "Delivered"
-                        ? "bg-green-800 text-green-300"
-                        : "bg-stone-700 text-stone-300"
-                    }`}
+              paginatedOrders.map((order, index) => {
+                if (order.isCustom) {
+                  return (
+                    <motion.div
+                      key={order.id}
+                      onClick={() =>
+  window.open(
+    order.id === 5
+      ? `/customize-image/${order.id}`
+      : `/customize/${order.id}`,
+    "_blank"
+  )
+}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1, duration: 0.6 }}
+                      viewport={{ once: true }}
+                      whileHover={{ scale: 1.03 }}
+                      className="cursor-pointer bg-[#1a120b] border border-[#2a1d13] hover:border-[#c9a36a]/40 transition-all duration-300 shadow-md hover:shadow-[#c9a36a]/20 rounded-2xl p-5 flex flex-col group"
+                    >
+                      <div className="overflow-hidden rounded-xl mb-4">
+                        <img
+                          src={order.image}
+                          alt={order.product}
+                          className="w-full h-48 object-cover rounded-xl transition-transform duration-300 group-hover:scale-105 opacity-90"
+                        />
+                      </div>
+                      <h2 className="text-lg sm:text-xl font-semibold text-white mb-1">
+                        {order.product}
+                      </h2>
+                      <p className="text-sm text-stone-400 mb-1">🗓 {order.date}</p>
+                      <span className="inline-block text-xs font-medium px-3 py-1 rounded-full mb-4 w-fit bg-purple-800 text-purple-300">
+                        {order.status}
+                      </span>
+                      <div className="mt-auto text-sm italic text-purple-400">
+                        Click to customize your pipe
+                      </div>
+                    </motion.div>
+                  );
+                }
+
+                return (
+                  <motion.div
+                    key={order.id}
+                    onClick={() => setSelectedOrder(order)}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.6 }}
+                    viewport={{ once: true }}
+                    whileHover={{ scale: 1.03 }}
+                    className="cursor-pointer bg-[#1a120b] border border-[#2a1d13] hover:border-[#c9a36a]/40 transition-all duration-300 shadow-md hover:shadow-[#c9a36a]/20 rounded-2xl p-5 flex flex-col group"
                   >
-                    {order.status}
-                  </span>
-                  <QuantityAddToCartButton item={order} onAdd={handleAddToCart} />
-                </motion.div>
-              ))
+                    <div className="overflow-hidden rounded-xl mb-4">
+                      <img
+                        src={order.image}
+                        alt={order.product}
+                        className="w-full h-48 object-cover rounded-xl transition-transform duration-300 group-hover:scale-105 opacity-90"
+                      />
+                    </div>
+                    <h2 className="text-lg sm:text-xl font-semibold text-white mb-1">
+                      {order.product}
+                    </h2>
+                    <p className="text-sm text-stone-400 mb-1">🗓 {order.date}</p>
+                    <span
+                      className={`inline-block text-xs font-medium px-3 py-1 rounded-full mb-4 w-fit ${
+                        order.status === "Shipped"
+                          ? "bg-blue-800 text-blue-300"
+                          : order.status === "Processing"
+                          ? "bg-yellow-800 text-yellow-300"
+                          : order.status === "Delivered"
+                          ? "bg-green-800 text-green-300"
+                          : "bg-stone-700 text-stone-300"
+                      }`}
+                    >
+                      {order.status}
+                    </span>
+                    <QuantityAddToCartButton item={order} onAdd={handleAddToCart} />
+                  </motion.div>
+                );
+              })
             )}
           </div>
 
