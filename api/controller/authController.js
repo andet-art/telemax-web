@@ -1,46 +1,62 @@
-// controllers/authController.js
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import config from '../config/index.js';
 import { findUserByEmail, createUser } from '../models/userModel.js';
-import dotenv from 'dotenv';
-dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const TOKEN_EXPIRES_IN = '1h';
-
+// POST /api/signup
 export async function signup(req, res) {
-  const { name, email, password } = req.body;
-  if (!name || !email || !password)
-    return res.status(400).json({ error: 'Name, email & password are required' });
+  try {
+    const { name, email, password } = req.body;
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
 
-  // Prevent duplicate email
-  if (await findUserByEmail(email))
-    return res.status(409).json({ error: 'Email already in use' });
+    // Ensure no existing user
+    const existing = await findUserByEmail(email);
+    if (existing) {
+      return res.status(409).json({ message: 'Email already in use' });
+    }
 
-  const passwordHash = await bcrypt.hash(password, 10);
-  const user = await createUser({ name, email, passwordHash });
-
-  // Issue a token immediately
-  const token = jwt.sign({ id: user.id, name, email }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN });
-  res.json({ token, user });
+    const user = await createUser({ name, email, passwordHash });
+    res.status(201).json({ id: user.id, name: user.name, email: user.email });
+  } catch (err) {
+    console.error('Signup error:', err);
+    res.status(500).json({ message: 'Server error during signup' });
+  }
 }
 
+// POST /api/login
 export async function login(req, res) {
-  const { email, password } = req.body;
-  if (!email || !password)
-    return res.status(400).json({ error: 'Email & password are required' });
+  try {
+    const { email, password } = req.body;
+    const user = await findUserByEmail(email);
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
 
-  const user = await findUserByEmail(email);
-  if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
 
-  const ok = await bcrypt.compare(password, user.password);
-  if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
+    // Sign JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      config.jwtSecret,
+      { expiresIn: '2h' }
+    );
 
-  const token = jwt.sign({ id: user.id, name: user.name, email }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN });
-  res.json({ token, user: { id: user.id, name: user.name, email } });
+    res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Server error during login' });
+  }
 }
 
+// GET /api/profile (protected)
 export async function profile(req, res) {
-  // authMiddleware set req.user
-  res.json({ user: req.user });
+  // authenticate middleware has injected req.user
+  const { id, email, name } = req.user;
+  res.json({ id, email, name });
 }
