@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// Optionally, use an environment variable for flexibility
+const API_BASE = import.meta.env.VITE_API_URL || "http://209.38.231.125:4000";
+
 type Form = { name: string; email: string; password: string };
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const [form, setForm] = useState<Form>({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [form, setForm] = useState<Form>({ name: "", email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -22,25 +21,22 @@ export default function SignUp() {
     setError(null);
 
     try {
-      const res = await fetch("/api/signup.php", {
+      const res = await fetch(`${API_BASE}/api/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
 
-      let data: any;
+      let data: any = {};
       try {
         data = await res.json();
-      } catch (parseErr) {
-        const text = await res.text();
-        console.error("❌ Could not parse JSON, got text:", text);
-        throw parseErr;
-      }
+      } catch {}
 
-      if (res.ok && data.success) {
-        navigate("/signin");
+      if (!res.ok) {
+        const msg = data.message || `${res.status}: ${res.statusText}`;
+        setError(`Sign up failed (${msg})`);
       } else {
-        setError(data.message || `Sign up failed (status ${res.status})`);
+        navigate("/signin");
       }
     } catch (err: any) {
       console.error("🔥 Error during signup:", err);
@@ -102,7 +98,7 @@ export default function SignUp() {
         </button>
 
         <p className="text-center text-sm mt-4 text-stone-400">
-          Already have an account?{" "}
+          Already have an account?{' '}
           <span
             className="text-[#c9a36a] cursor-pointer hover:underline"
             onClick={() => navigate("/signin")}

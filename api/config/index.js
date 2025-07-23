@@ -1,8 +1,6 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
+// config/index.js
 export default {
-  port:     process.env.PORT || 4000,
+  port: process.env.PORT || 4000,
   jwtSecret: process.env.JWT_SECRET,
   db: {
     host:     process.env.DB_HOST,
@@ -11,7 +9,12 @@ export default {
     database: process.env.DB_NAME,
   },
   cors: {
-    origin: ['http://localhost:3000', 'http://209.38.231.125'],
+    origin: [
+      'http://localhost:5173',      // Vite dev server
+      'http://localhost:3000',      // (if you ever use CRA or another port)
+      'http://209.38.231.125',      // droplet IP, no port for static files
+      'http://209.38.231.125:5173', // if you proxy the React app via the droplet
+    ],
     credentials: true,
   }
 };
