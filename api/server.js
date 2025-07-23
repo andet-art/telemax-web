@@ -2,11 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import config from './config/index.js';
 import authRoutes from './routes/authRoutes.js';
+import productRoutes from './routes/productRoutes.js';
 
 const app = express();
 app.use(cors(config.cors));
 app.use(express.json());
 app.use('/api', authRoutes);
+app.use('/api/products', productRoutes);
 
 app.listen(config.port, () =>
   console.log(`Server listening on port ${config.port}`)
