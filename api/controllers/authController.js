@@ -22,7 +22,6 @@ export async function signup(req, res) {
       marketing_consent,
     } = req.body;
 
-    // Basic validation for required fields
     if (!email || !password || !first_name || !last_name) {
       return res.status(400).json({ error: 'First name, last name, email, and password are required' });
     }
@@ -67,18 +66,41 @@ export async function signup(req, res) {
 export async function login(req, res) {
   try {
     const { email, password } = req.body;
+    console.log("🟡 Login request for:", email);
 
     const user = await findUserByEmail(email);
-    if (!user) return res.status(401).json({ message: 'Invalid email or password' });
+    console.log("🟢 Found user:", user);
+
+    if (!user) {
+      console.log("🔴 No user found");
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    if (!user.password) {
+      console.log("❗ User record missing password field");
+      return res.status(500).json({ message: 'Invalid user data' });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: 'Invalid email or password' });
+    console.log("🔐 Password match result:", isMatch);
+
+    if (!isMatch) {
+      console.log("🔴 Incorrect password");
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    if (!config.jwtSecret) {
+      console.log("❌ JWT Secret not loaded");
+      return res.status(500).json({ message: 'JWT configuration error' });
+    }
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       config.jwtSecret,
       { expiresIn: '2h' }
     );
+
+    console.log("✅ Token created");
 
     res.json({
       token,
@@ -91,7 +113,7 @@ export async function login(req, res) {
       },
     });
   } catch (err) {
-    console.error('Login error:', err);
+    console.error('🔥 Login error:', err);
     res.status(500).json({ message: 'Server error during login' });
   }
 }
