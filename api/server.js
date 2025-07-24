@@ -9,6 +9,7 @@ app.use(cors(config.cors));
 app.use(express.json());
 app.use('/api', authRoutes);
 app.use('/api/products', productRoutes);
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.listen(config.port, () =>
   console.log(`Server listening on port ${config.port}`)

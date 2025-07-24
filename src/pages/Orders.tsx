@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import heroVideo from "../assets/hero-home.mp4";
 import { useCart } from "../context/CartContext";
+
+// Base URL for your API
+const API_BASE = import.meta.env.VITE_API_URL || "http://209.38.231.125:4000";
 
 const demoProducts = [
   {
@@ -45,34 +48,52 @@ const demoProducts = [
   },
 ];
 
-const statusTabs = ["All", "Shipped", "Processing", "Delivered", "Custom"];
+const statusTabs = ["All", "Shipped", "Processing", "Delivered", "Custom", "Available"];
 
-const Orders = () => {
+export default function Orders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("newest");
   const [activeStatus, setActiveStatus] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [fetchedProducts, setFetchedProducts] = useState<any[]>([]);
   const itemsPerPage = 6;
 
   const navigate = useNavigate();
   const { cart, addToCart } = useCart();
 
-  const handleAddToCart = (item: any, quantity = 1) => {
-    addToCart(item, quantity);
-    toast.success(`Added ${quantity} × ${item.product} to cart!`);
-  };
+  // Fetch products from the database
+  useEffect(() => {
+    fetch(`${API_BASE}/api/products`)
+      .then((res) => res.json())
+      .then((data) => {
+        const mapped = data.map((p: any) => ({
+          id: p.id + demoProducts.length, // avoid ID collision
+          product: p.name,
+          date: p.created_at?.slice(0, 10) || new Date().toISOString().slice(0, 10),
+          status: "Available",
+          image: p.image_url,
+          isCustom: false,
+        }));
+        setFetchedProducts(mapped);
+      })
+      .catch((err) => console.error("Failed to fetch products:", err));
+  }, []);
 
-  let filteredProducts = demoProducts.filter((order) =>
+  // Combined list of demo + fetched items
+  const allOrders = [...demoProducts, ...fetchedProducts];
+
+  // Filter by search and status
+  let filteredProducts = allOrders.filter((order) =>
     order.product.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   if (activeStatus !== "All") {
     filteredProducts = filteredProducts.filter(
       (order) => order.status === activeStatus
     );
   }
 
+  // Sort
   filteredProducts.sort((a, b) => {
     switch (sortOption) {
       case "newest":
@@ -88,10 +109,16 @@ const Orders = () => {
     }
   });
 
+  // Pagination
   const paginatedOrders = filteredProducts.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const handleAddToCart = (item: any, quantity = 1) => {
+    addToCart(item, quantity);
+    toast.success(`Added ${quantity} × ${item.product} to cart!`);
+  };
 
   return (
     <>
@@ -141,6 +168,7 @@ const Orders = () => {
             ))}
           </motion.div>
 
+          {/* Search and Sort Section */}
           <motion.section
             className="relative w-full max-w-5xl mx-auto rounded-xl overflow-hidden bg-[#2a1d13] border border-stone-700 px-6 py-8 mb-12"
             initial={{ opacity: 0, y: 30 }}
@@ -169,6 +197,7 @@ const Orders = () => {
             </div>
           </motion.section>
 
+          {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedOrders.length === 0 ? (
               <div className="col-span-full text-center text-stone-400 py-20">
@@ -182,13 +211,13 @@ const Orders = () => {
                     <motion.div
                       key={order.id}
                       onClick={() =>
-  window.open(
-    order.id === 5
-      ? `/customize-image/${order.id}`
-      : `/customize/${order.id}`,
-    "_blank"
-  )
-}
+                        window.open(
+                          order.id === 5
+                            ? `/customize-image/${order.id}`
+                            : `/customize/${order.id}`,
+                          "_blank"
+                        )
+                      }
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1, duration: 0.6 }}
@@ -206,7 +235,9 @@ const Orders = () => {
                       <h2 className="text-lg sm:text-xl font-semibold text-white mb-1">
                         {order.product}
                       </h2>
-                      <p className="text-sm text-stone-400 mb-1">🗓 {order.date}</p>
+                      <p className="text-sm text-stone-400 mb-1">
+                        🗓 {order.date}
+                      </p>
                       <span className="inline-block text-xs font-medium px-3 py-1 rounded-full mb-4 w-fit bg-purple-800 text-purple-300">
                         {order.status}
                       </span>
@@ -238,7 +269,9 @@ const Orders = () => {
                     <h2 className="text-lg sm:text-xl font-semibold text-white mb-1">
                       {order.product}
                     </h2>
-                    <p className="text-sm text-stone-400 mb-1">🗓 {order.date}</p>
+                    <p className="text-sm text-stone-400 mb-1">
+                      🗓 {order.date}
+                    </p>
                     <span
                       className={`inline-block text-xs font-medium px-3 py-1 rounded-full mb-4 w-fit ${
                         order.status === "Shipped"
@@ -259,10 +292,9 @@ const Orders = () => {
             )}
           </div>
 
+          {/* Pagination Controls */}
           <div className="mt-12 flex justify-center gap-2 text-sm">
-            {Array.from({
-              length: Math.ceil(filteredProducts.length / itemsPerPage),
-            }).map((_, i) => {
+            {Array.from({ length: Math.ceil(filteredProducts.length / itemsPerPage) }).map((_, i) => {
               const page = i + 1;
               const isActive = page === currentPage;
               return (
@@ -316,7 +348,9 @@ const Orders = () => {
                   alt={selectedOrder.product}
                   className="w-full h-56 object-cover rounded-lg mb-4"
                 />
-                <p className="text-sm text-stone-400 mb-2">🗓 {selectedOrder.date}</p>
+                <p className="text-sm text-stone-400 mb-2">
+                  🗓 {selectedOrder.date}
+                </p>
                 <p className="text-sm text-stone-400 mb-6">
                   Status: <span className="text-[#c9a36a] font-medium">{selectedOrder.status}</span>
                 </p>
@@ -333,7 +367,7 @@ const Orders = () => {
       </main>
     </>
   );
-};
+}
 
 const QuantityAddToCartButton = ({
   item,
@@ -366,5 +400,3 @@ const QuantityAddToCartButton = ({
     </div>
   );
 };
-
-export default Orders;
