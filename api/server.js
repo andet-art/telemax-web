@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-dotenv.config(); // 👈 Load .env variables before anything else
+dotenv.config(); // Load environment variables first
 
 import express from 'express';
 import cors from 'cors';
@@ -10,26 +10,34 @@ import { dirname } from 'path';
 import config from './config/index.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
-import userRoutes from './routes/userRoutes.js'; // ✅ Add this line
+// Optional: Only use this if you have more user-related routes beyond /profile
+// import userRoutes from './routes/userRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
 
+console.log('✅ Server is starting...');
+
 // Middleware
 app.use(cors(config.cors));
 app.use(express.json());
 
 // Routes
-app.use('/api', authRoutes);
+app.use('/api', authRoutes); // Includes /signup, /login, /profile
 app.use('/api/products', productRoutes);
-app.use('/api', userRoutes); // ✅ Mount profile route
+// app.use('/api', userRoutes); // Uncomment if additional routes exist in userRoutes.js
 
-// Serve static files
+// Serve static assets from /public
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Catch-all route for unmatched endpoints
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
 
 // Start server
 app.listen(config.port, () => {
-  console.log(`Server listening on port ${config.port}`);
+  console.log(`✅ Server listening on port ${config.port}`);
 });
