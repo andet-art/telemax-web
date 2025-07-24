@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config(); // 👈 Load .env variables before anything else
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -14,13 +17,15 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
+// Middleware
 app.use(cors(config.cors));
 app.use(express.json());
+
+// Routes
 app.use('/api', authRoutes);
 app.use('/api/products', productRoutes);
-app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve static files
+// Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Start server
