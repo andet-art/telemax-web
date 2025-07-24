@@ -10,8 +10,8 @@ import { dirname } from 'path';
 import config from './config/index.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
+import userRoutes from './routes/userRoutes.js'; // ✅ Add this line
 
-// Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -24,8 +24,9 @@ app.use(express.json());
 // Routes
 app.use('/api', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api', userRoutes); // ✅ Mount profile route
 
-// Static files
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Start server
