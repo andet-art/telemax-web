@@ -32,7 +32,7 @@ export async function createUser({
     (email, password, role, first_name, last_name, phone, date_of_birth, country, 
      shipping_address, billing_address, age_verified, terms_accepted, 
      privacy_accepted, marketing_consent)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       email,
       passwordHash,
