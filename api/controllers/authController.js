@@ -36,7 +36,7 @@ export async function signup(req, res) {
 
     const user = await createUser({
       email,
-      passwordHash,
+       password: passwordHash, // ✅ correct field that matches your DB
       role,
       first_name,
       last_name,
