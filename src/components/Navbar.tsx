@@ -4,28 +4,18 @@ import { Button } from "../components/ui/button";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLang } from "../context/LanguageContext";
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
+import { useAuth } from "../components/AuthContext"; // ✅ make sure file is in ../context/
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { lang, toggleLanguage, t } = useLang();
+  const { user, logout } = useAuth(); // ✅ Only check for `user` presence
 
   const [open, setOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [shrink, setShrink] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) setUser(JSON.parse(stored));
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,19 +29,8 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/logout.php", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-
-    localStorage.removeItem("user");
-    setUser(null);
+  const handleLogout = () => {
+    logout();
     navigate("/signin");
   };
 
@@ -75,7 +54,6 @@ const Navbar = () => {
       } ${shrink ? "py-2" : "py-4"}`}
     >
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center transition-all duration-300">
-        {/* Logo */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
