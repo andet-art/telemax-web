@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getProfile, getAllUsers } from '../controllers/userController.js';
-import { verifyToken } from '../middleware/verifyToken.js'; // ✅ fixed named import
+import verifyToken from '../middleware/verifyToken.js'; // ✅ FIXED
 
 const router = Router();
 
