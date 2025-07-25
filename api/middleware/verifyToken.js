@@ -1,7 +1,7 @@
-// verifyToken.js
+// middleware/verifyToken.js
 import jwt from 'jsonwebtoken';
 
-export function verifyToken(req, res, next) {
+const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -12,9 +12,11 @@ export function verifyToken(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    req.user = decoded; // Attach user to request
     next();
   } catch (err) {
     return res.status(403).json({ message: 'Invalid token' });
   }
-}
+};
+
+export default verifyToken;

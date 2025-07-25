@@ -1,4 +1,4 @@
-// orderController.js
+// controllers/orderController.js
 import db from '../db.js';
 
 export const getAllOrdersWithItems = async (req, res) => {
