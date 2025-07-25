@@ -3,12 +3,14 @@ import cors from 'cors';
 import config from './config/index.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
+const orderRoutes = require("./routes/orderRoutes");
 
 const app = express();
 app.use(cors(config.cors));
 app.use(express.json());
 app.use('/api', authRoutes);
 app.use('/api/products', productRoutes);
+app.use("/api/orders", orderRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.listen(config.port, () =>
