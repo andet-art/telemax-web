@@ -20,7 +20,7 @@ export const getProfile = (req, res) => {
   });
 };
 
-// ✅ Get all users (admin only)
+// ✅ Get all users (admin use)
 export const getAllUsers = (req, res) => {
   const query = `
     SELECT id, email, role, first_name, last_name, phone, date_of_birth, country,
