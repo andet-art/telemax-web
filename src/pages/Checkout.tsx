@@ -13,14 +13,13 @@ const Checkout = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name || !formData.email || !formData.address) {
@@ -28,9 +27,37 @@ const Checkout = () => {
       return;
     }
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to place an order.");
+      return;
+    }
+
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    try {
+      const response = await fetch("http://209.38.231.125:4000/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          full_name: formData.name,
+          email: formData.email,
+          address: formData.address,
+          items: cart.map(item => ({
+            product_id: item.id,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          total_price: totalPrice,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to place order");
+
+      clearCart();
       navigate("/payment", {
         state: {
           name: formData.name,
@@ -39,7 +66,12 @@ const Checkout = () => {
           total: totalPrice,
         },
       });
-    }, 1500);
+    } catch (err) {
+      alert("Error placing order.");
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (cart.length === 0) {
@@ -62,7 +94,6 @@ const Checkout = () => {
         🧾 Checkout
       </h1>
 
-      {/* Order Summary */}
       <div className="mb-10 bg-[#2a1d13] p-6 sm:p-8 rounded-2xl shadow-xl border border-stone-800 w-full">
         <h2 className="text-2xl font-bold mb-4 text-white">Order Summary</h2>
         <ul className="divide-y divide-stone-700 text-stone-300 text-base">
@@ -80,61 +111,23 @@ const Checkout = () => {
         </div>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6 bg-[#2a1d13] p-6 sm:p-8 rounded-2xl shadow-xl border border-stone-800 w-full">
         <div>
-          <label htmlFor="name" className="block mb-2 font-semibold text-[#c9a36a]">
-            Full Name
-          </label>
-          <input
-            type="text"
-            name="name"
-            id="name"
-            className="w-full px-4 py-2 rounded-md bg-[#1e130a] border border-stone-700 text-white focus:outline-none focus:ring-2 focus:ring-[#c9a36a]"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            disabled={isSubmitting}
-          />
+          <label htmlFor="name" className="block mb-2 font-semibold text-[#c9a36a]">Full Name</label>
+          <input type="text" name="name" id="name" className="w-full px-4 py-2 rounded-md bg-[#1e130a] border border-stone-700 text-white" value={formData.name} onChange={handleChange} required disabled={isSubmitting} />
         </div>
 
         <div>
-          <label htmlFor="email" className="block mb-2 font-semibold text-[#c9a36a]">
-            Email Address
-          </label>
-          <input
-            type="email"
-            name="email"
-            id="email"
-            className="w-full px-4 py-2 rounded-md bg-[#1e130a] border border-stone-700 text-white focus:outline-none focus:ring-2 focus:ring-[#c9a36a]"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            disabled={isSubmitting}
-          />
+          <label htmlFor="email" className="block mb-2 font-semibold text-[#c9a36a]">Email</label>
+          <input type="email" name="email" id="email" className="w-full px-4 py-2 rounded-md bg-[#1e130a] border border-stone-700 text-white" value={formData.email} onChange={handleChange} required disabled={isSubmitting} />
         </div>
 
         <div>
-          <label htmlFor="address" className="block mb-2 font-semibold text-[#c9a36a]">
-            Shipping Address
-          </label>
-          <textarea
-            name="address"
-            id="address"
-            rows={4}
-            className="w-full px-4 py-2 rounded-md bg-[#1e130a] border border-stone-700 text-white focus:outline-none focus:ring-2 focus:ring-[#c9a36a]"
-            value={formData.address}
-            onChange={handleChange}
-            required
-            disabled={isSubmitting}
-          />
+          <label htmlFor="address" className="block mb-2 font-semibold text-[#c9a36a]">Shipping Address</label>
+          <textarea name="address" id="address" rows={4} className="w-full px-4 py-2 rounded-md bg-[#1e130a] border border-stone-700 text-white" value={formData.address} onChange={handleChange} required disabled={isSubmitting} />
         </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full bg-[#c9a36a] hover:bg-[#b68d58] text-[#1a120b] px-6 py-3 rounded-full font-bold shadow-lg transition disabled:opacity-70"
-        >
+        <button type="submit" disabled={isSubmitting} className="w-full bg-[#c9a36a] hover:bg-[#b68d58] text-[#1a120b] px-6 py-3 rounded-full font-bold shadow-lg transition disabled:opacity-70">
           {isSubmitting ? "Processing..." : "Place Order"}
         </button>
       </form>
