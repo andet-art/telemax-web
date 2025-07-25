@@ -16,6 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+const PORT = config.port || 4000;
 
 console.log('✅ Server is starting...');
 
@@ -26,17 +27,17 @@ app.use(express.json());
 // Routes
 app.use('/api', authRoutes); // Includes /signup, /login, /profile
 app.use('/api/products', productRoutes);
-app.use('/api', userRoutes); // ✅ Mount user routes (includes /profile, /all-users)
+app.use('/api', userRoutes); // ✅ Mount user routes
 
-// Serve static assets from /public
+// Serve static assets
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Catch-all route for unmatched endpoints
+// 404 fallback
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-// Start server
-app.listen(config.port, () => {
-  console.log(`✅ Server listening on port ${config.port}`);
+// Start server on 0.0.0.0 so it's externally accessible
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server is listening on http://0.0.0.0:${PORT}`);
 });
