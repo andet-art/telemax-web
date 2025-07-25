@@ -1,6 +1,6 @@
 // testConnection.js
 import dotenv from 'dotenv';
-import { db } from './db.js';
+import  db  from './db.js';
 
 // Load .env
 dotenv.config();
