@@ -1,6 +1,8 @@
 import db from '../db.js';
 
 // Get all orders with item details (admin view)
+console.log("📦 Order received:", req.body);
+
 export const getAllOrdersWithItems = async (req, res) => {
   try {
     const [orders] = await db.query(`
