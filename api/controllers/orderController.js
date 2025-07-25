@@ -1,4 +1,4 @@
-import db from '../config/db.js'; // Adjust path if needed
+import db from '../db.js'; // Adjust path if needed
 
 export const getAllOrdersWithItems = async (req, res) => {
   try {
