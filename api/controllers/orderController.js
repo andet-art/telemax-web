@@ -1,9 +1,10 @@
-import db from '../config/db.js'; // Adjust path if needed
+// controllers/orderController.js
+import db from '../db.js';
 
 export const getAllOrdersWithItems = async (req, res) => {
   try {
     // Fetch orders with user email
-    const [orders] = await db.promise().query(`
+    const [orders] = await db.query(`
       SELECT o.*, u.email AS user_email 
       FROM orders o
       JOIN users u ON o.user_id = u.id
@@ -11,7 +12,7 @@ export const getAllOrdersWithItems = async (req, res) => {
     `);
 
     // Fetch all order items with product name
-    const [items] = await db.promise().query(`
+    const [items] = await db.query(`
       SELECT oi.*, p.name AS product_name 
       FROM order_items oi
       JOIN products p ON oi.product_id = p.id
@@ -25,7 +26,7 @@ export const getAllOrdersWithItems = async (req, res) => {
 
     res.json(ordersWithItems);
   } catch (err) {
-    console.error("❌ Failed to fetch orders:", err);
+    console.error("❌ Failed to fetch orders:", err.message);
     res.status(500).json({ message: "Server error" });
   }
 };

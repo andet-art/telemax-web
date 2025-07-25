@@ -1,3 +1,4 @@
+// middleware/verifyToken.js
 import jwt from 'jsonwebtoken';
 
 const verifyToken = (req, res, next) => {
@@ -11,7 +12,7 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // e.g., { id, email, role, iat, exp }
+    req.user = decoded; // Attach user to request
     next();
   } catch (err) {
     return res.status(403).json({ message: 'Invalid token' });
