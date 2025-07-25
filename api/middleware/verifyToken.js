@@ -1,5 +1,5 @@
-// middleware/verifyToken.js (CommonJS style)
-const jwt = require('jsonwebtoken');
+// middleware/verifyToken.js
+import jwt from 'jsonwebtoken';
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -12,7 +12,7 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    req.user = decoded; // Attach user info to request
     next();
   } catch (err) {
     return res.status(403).json({ message: 'Invalid token' });
@@ -20,4 +20,3 @@ const verifyToken = (req, res, next) => {
 };
 
 export default verifyToken;
-
