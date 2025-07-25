@@ -1,4 +1,4 @@
-export default {
+module.exports default {
   apps: [
     {
       name: 'telemax-api',
