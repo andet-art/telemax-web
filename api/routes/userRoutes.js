@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { getProfile, getAllUsers } from '../controllers/userController.js';
-
-const verifyToken = require('../middleware/verifyToken');
+import verifyToken from '../middleware/verifyToken.js'; // ✅ FIXED
 
 const router = Router();
 
