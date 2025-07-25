@@ -1,9 +1,10 @@
-const express = require("express");
+import express from 'express';
+import { getAllOrdersWithItems } from '../controllers/orderController.js';
+import verifyToken from '../middleware/verifyToken.js';
+
 const router = express.Router();
-const { createOrder, getOrdersByAdmin } = require("../controllers/orderController");
-const verifyToken = require("../middleware/verifyToken");
 
-router.post("/", verifyToken, createOrder);
-router.get("/admin", verifyToken, getOrdersByAdmin); // Optional: protect with isAdmin
+// ✅ Admin route to get all orders with product info
+router.get('/admin', verifyToken, getAllOrdersWithItems);
 
-module.exports = router;
+export default router;

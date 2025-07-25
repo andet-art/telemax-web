@@ -1,4 +1,4 @@
-import { db } from '../db.js';
+import db  from '../db.js';
 
 export async function getAllProducts() {
   const [rows] = await db.query('SELECT * FROM products');

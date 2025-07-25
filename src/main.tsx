@@ -7,6 +7,7 @@ import "slick-carousel/slick/slick-theme.css";
 
 import { LanguageProvider } from "./context/LanguageContext";
 import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./components/AuthContext";
 
 const rootElement = document.getElementById("root")!;
 const root = createRoot(rootElement);
@@ -15,7 +16,9 @@ root.render(
   <StrictMode>
     <LanguageProvider>
       <CartProvider>
+        <AuthProvider>
         <App />
+        </AuthProvider>
       </CartProvider>
     </LanguageProvider>
   </StrictMode>

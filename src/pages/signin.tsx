@@ -4,7 +4,10 @@ import { useNavigate } from "react-router-dom";
 // Optionally use an environment variable for flexibility
 const API_BASE = import.meta.env.VITE_API_URL || "http://209.38.231.125:4000";
 
-type SignInForm = { email: string; password: string };
+type SignInForm = {
+  email: string;
+  password: string;
+};
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -34,7 +37,13 @@ export default function SignIn() {
         // Store JWT and user info
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/profile");
+        
+        // Role-based redirect
+        if (data.user.role === 'admin') {
+          navigate("/profile");
+        } else {
+          navigate("/profile");
+        }
       }
     } catch (err: any) {
       console.error("🔥 Error during signin:", err);
@@ -88,7 +97,7 @@ export default function SignIn() {
         </button>
 
         <p className="text-center text-sm mt-4 text-stone-400">
-          Don’t have an account?{' '}
+          Don't have an account?{' '}
           <span
             className="text-[#c9a36a] cursor-pointer hover:underline"
             onClick={() => navigate("/signup")}
