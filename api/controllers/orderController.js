@@ -1,6 +1,6 @@
-// controllers/orderController.js
 import db from '../db.js';
 
+// Get all orders with item details (admin view)
 export const getAllOrdersWithItems = async (req, res) => {
   try {
     const [orders] = await db.query(`
@@ -28,19 +28,31 @@ export const getAllOrdersWithItems = async (req, res) => {
   }
 };
 
+// Create new order
 export const createOrder = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { full_name, email, address, items, total_price } = req.body;
+    const {
+      full_name,
+      email,
+      phone,
+      address,
+      description, // description from frontend maps to notes in DB
+      items,
+      total_price,
+    } = req.body;
 
+    // Insert into orders table
     const [result] = await db.query(
-      `INSERT INTO orders (user_id, full_name, email, address, total_price, status, created_at)
-       VALUES (?, ?, ?, ?, ?, 'Pending', NOW())`,
-      [userId, full_name, email, address, total_price]
+      `INSERT INTO orders 
+        (user_id, full_name, email, phone, address, notes, total_price, status, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())`,
+      [userId, full_name, email, phone, address, description, total_price]
     );
 
     const orderId = result.insertId;
 
+    // Insert order items
     const itemValues = items.map(item => [orderId, item.product_id, item.quantity, item.price]);
     await db.query(
       `INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ?`,

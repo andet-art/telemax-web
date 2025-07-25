@@ -9,7 +9,9 @@ const Checkout = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     address: "",
+    description: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,7 +24,7 @@ const Checkout = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.email || !formData.address) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.address) {
       alert("Please fill all the fields.");
       return;
     }
@@ -45,7 +47,9 @@ const Checkout = () => {
         body: JSON.stringify({
           full_name: formData.name,
           email: formData.email,
+          phone: formData.phone,
           address: formData.address,
+          description: formData.description,
           items: cart.map(item => ({
             product_id: item.id,
             quantity: item.quantity,
@@ -111,7 +115,10 @@ const Checkout = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-[#2a1d13] p-6 sm:p-8 rounded-2xl shadow-xl border border-stone-800 w-full">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 bg-[#2a1d13] p-6 sm:p-8 rounded-2xl shadow-xl border border-stone-800 w-full"
+      >
         <div>
           <label htmlFor="name" className="block mb-2 font-semibold text-[#c9a36a]">Full Name</label>
           <input type="text" name="name" id="name" className="w-full px-4 py-2 rounded-md bg-[#1e130a] border border-stone-700 text-white" value={formData.name} onChange={handleChange} required disabled={isSubmitting} />
@@ -123,8 +130,18 @@ const Checkout = () => {
         </div>
 
         <div>
+          <label htmlFor="phone" className="block mb-2 font-semibold text-[#c9a36a]">Phone</label>
+          <input type="text" name="phone" id="phone" className="w-full px-4 py-2 rounded-md bg-[#1e130a] border border-stone-700 text-white" value={formData.phone} onChange={handleChange} required disabled={isSubmitting} />
+        </div>
+
+        <div>
           <label htmlFor="address" className="block mb-2 font-semibold text-[#c9a36a]">Shipping Address</label>
-          <textarea name="address" id="address" rows={4} className="w-full px-4 py-2 rounded-md bg-[#1e130a] border border-stone-700 text-white" value={formData.address} onChange={handleChange} required disabled={isSubmitting} />
+          <textarea name="address" id="address" rows={3} className="w-full px-4 py-2 rounded-md bg-[#1e130a] border border-stone-700 text-white" value={formData.address} onChange={handleChange} required disabled={isSubmitting} />
+        </div>
+
+        <div>
+          <label htmlFor="description" className="block mb-2 font-semibold text-[#c9a36a]">Order Notes (optional)</label>
+          <textarea name="description" id="description" rows={3} className="w-full px-4 py-2 rounded-md bg-[#1e130a] border border-stone-700 text-white" value={formData.description} onChange={handleChange} disabled={isSubmitting} />
         </div>
 
         <button type="submit" disabled={isSubmitting} className="w-full bg-[#c9a36a] hover:bg-[#b68d58] text-[#1a120b] px-6 py-3 rounded-full font-bold shadow-lg transition disabled:opacity-70">
