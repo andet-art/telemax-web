@@ -1,6 +1,8 @@
+// controllers/userController.js
+
 const db = require("../config/db");
 
-// Get profile of currently logged-in user
+// ✅ Get profile of currently logged-in user
 const getProfile = (req, res) => {
   const userId = req.user.id;
 
@@ -19,7 +21,7 @@ const getProfile = (req, res) => {
   });
 };
 
-// ✅ NEW: Get all users (admin only)
+// ✅ NEW: Get all users (admin-only access)
 const getAllUsers = (req, res) => {
   const query = `
     SELECT id, email, role, first_name, last_name, phone, date_of_birth, country,
