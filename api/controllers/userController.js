@@ -1,5 +1,5 @@
 // controllers/userController.js
-import db from '../config/db.js';
+import db from '../db.js';
 
 // Get profile of currently logged-in user
 export const getProfile = (req, res) => {
