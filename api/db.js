@@ -13,4 +13,4 @@ const db = mysql.createPool({
   queueLimit: 0
 });
 
-export default db; // ✅ default export so `import db from '../db.js'` works
+export default db;
