@@ -10,8 +10,7 @@ import { dirname } from 'path';
 import config from './config/index.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
-// Optional: Only use this if you have more user-related routes beyond /profile
-// import userRoutes from './routes/userRoutes.js';
+import userRoutes from './routes/userRoutes.js'; // ✅ Add this
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,7 +26,7 @@ app.use(express.json());
 // Routes
 app.use('/api', authRoutes); // Includes /signup, /login, /profile
 app.use('/api/products', productRoutes);
-// app.use('/api', userRoutes); // Uncomment if additional routes exist in userRoutes.js
+app.use('/api', userRoutes); // ✅ Mount user routes (includes /profile, /all-users)
 
 // Serve static assets from /public
 app.use(express.static(path.join(__dirname, 'public')));

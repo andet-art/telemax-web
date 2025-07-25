@@ -40,7 +40,7 @@ export default function SignIn() {
         
         // Role-based redirect
         if (data.user.role === 'admin') {
-          navigate("/admin-profile");
+          navigate("/profile");
         } else {
           navigate("/profile");
         }
