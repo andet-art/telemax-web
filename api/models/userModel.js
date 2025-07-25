@@ -1,5 +1,5 @@
 // models/userModel.js
-import { db } from '../db.js';
+import  db  from '../db.js';
 
 export async function findUserByEmail(email) {
   const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
