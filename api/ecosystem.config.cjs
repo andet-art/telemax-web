@@ -1,8 +1,9 @@
-module.exports default {
+module.exports = {
   apps: [
     {
       name: 'telemax-api',
       script: './server.js',
+      watch: false,
       env: {
         NODE_ENV: 'production',
         PORT: 4000,
@@ -11,8 +12,8 @@ module.exports default {
         DB_USER: 'root',
         DB_PASSWORD: 'Neon@2025Server!',
         DB_NAME: 'telemax',
-        JWT_SECRET: 'Ne1inHdBWTipGI4TBL_EfD4jRW2LStqdL9gzBb4PzWbqzYZenUu8l_BtOsqLNN13',
+        JWT_SECRET: 'Ne1inHdBWTipGI4TBL_EfD4jRW2LStqdL9gzBb4PzWbqzYZenUu8l_BtOsqLNN13'
       }
     }
   ]
-}
+};
