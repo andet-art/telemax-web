@@ -1,6 +1,7 @@
+// verifyToken.js
 import jwt from 'jsonwebtoken';
 
-const verifyToken = (req, res, next) => {
+export function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -11,11 +12,9 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // e.g., { id, email, role, iat, exp }
+    req.user = decoded;
     next();
   } catch (err) {
     return res.status(403).json({ message: 'Invalid token' });
   }
-};
-
-export default verifyToken;
+}
