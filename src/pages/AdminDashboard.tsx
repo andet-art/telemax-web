@@ -20,13 +20,36 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [activeUsers, setActiveUsers] = useState(0 || []);
+  const [activeUsers, setActiveUsers] = useState([]);
+  const [activeUserCount, setActiveUserCount] = useState(0);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   const headers = {
     Authorization: `Bearer ${token}`,
+  };
+
+  const preloadOverviewData = async () => {
+    try {
+      const [usersRes, productsRes, ordersRes, activeRes] = await Promise.all([
+        axios.get(`${API}/api/all-users`, { headers }),
+        axios.get(`${API}/api/products`),
+        axios.get(`${API}/api/orders/admin`, { headers }),
+        axios.get(`${API}/api/active-count`, { headers }),
+      ]);
+
+      setUsers(Array.isArray(usersRes.data) ? usersRes.data : []);
+      setProducts(Array.isArray(productsRes.data) ? productsRes.data : []);
+      setOrders(Array.isArray(ordersRes.data) ? ordersRes.data : []);
+      setActiveUserCount(activeRes.data.activeUsers || 0);
+    } catch (err) {
+      console.error("❌ Overview preload error:", err);
+      if (err.response?.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/signin");
+      }
+    }
   };
 
   useEffect(() => {
@@ -37,7 +60,9 @@ export default function AdminDashboard() {
 
     const fetchData = async () => {
       try {
-        if (activeTab === "users") {
+        if (activeTab === "overview") {
+          await preloadOverviewData();
+        } else if (activeTab === "users") {
           const res = await axios.get(`${API}/api/all-users`, { headers });
           setUsers(Array.isArray(res.data) ? res.data : []);
         } else if (activeTab === "products") {
@@ -46,9 +71,6 @@ export default function AdminDashboard() {
         } else if (activeTab === "orders") {
           const res = await axios.get(`${API}/api/orders/admin`, { headers });
           setOrders(Array.isArray(res.data) ? res.data : []);
-        } else if (activeTab === "overview") {
-          const res = await axios.get(`${API}/api/active-users`);
-          setActiveUsers(res.data.count || 0);
         } else if (activeTab === "activeUsers") {
           const res = await axios.get(`${API}/api/active-users`);
           setActiveUsers(Array.isArray(res.data) ? res.data : []);
@@ -64,6 +86,13 @@ export default function AdminDashboard() {
 
     fetchData();
   }, [activeTab]);
+
+  // 🔁 Optional: Load overview immediately on mount too
+  useEffect(() => {
+    if (activeTab === "overview") {
+      preloadOverviewData();
+    }
+  }, []);
 
   const navItems = [
     { label: "Overview", key: "overview", icon: LayoutDashboard },
@@ -88,7 +117,7 @@ export default function AdminDashboard() {
       <StatCard label="Users" value={users.length} />
       <StatCard label="Products" value={products.length} />
       <StatCard label="Orders" value={orders.length} />
-      <StatCard label="Active Users" value={activeUsers} />
+      <StatCard label="Active Users" value={activeUserCount} />
     </div>
   );
 
@@ -209,15 +238,14 @@ export default function AdminDashboard() {
           </tr>
         </thead>
         <tbody>
-          {Array.isArray(activeUsers) &&
-            activeUsers.map((user, idx) => (
-              <tr key={idx} className="border-t">
-                <td className="px-4 py-2">{user.email}</td>
-                <td className="px-4 py-2">
-                  {new Date(user.loginTime).toLocaleString()}
-                </td>
-              </tr>
-            ))}
+          {activeUsers.map((user, idx) => (
+            <tr key={idx} className="border-t">
+              <td className="px-4 py-2">{user.email}</td>
+              <td className="px-4 py-2">
+                {new Date(user.loginTime).toLocaleString()}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
