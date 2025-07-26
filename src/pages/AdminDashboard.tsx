@@ -19,6 +19,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [activeUsers, setActiveUsers] = useState(0);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -43,6 +44,11 @@ export default function AdminDashboard() {
         } else if (activeTab === "orders") {
           const res = await axios.get(`${API}/api/orders/admin`, { headers });
           setOrders(Array.isArray(res.data) ? res.data : []);
+        }
+
+        if (activeTab === "overview") {
+          const res = await axios.get(`${API}/api/active-users`);
+          setActiveUsers(res.data.count || 0);
         }
       } catch (err) {
         console.error("❌ Fetch error:", err);
@@ -78,7 +84,7 @@ export default function AdminDashboard() {
       <StatCard label="Users" value={users.length} />
       <StatCard label="Products" value={products.length} />
       <StatCard label="Orders" value={orders.length} />
-      <StatCard label="Revenue" value="$1,430" />
+      <StatCard label="Active Users" value={activeUsers} />
     </div>
   );
 
@@ -181,7 +187,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
       <div className="bg-zinc-900 text-white w-64 p-4 space-y-4">
         <div className="text-2xl font-bold mb-6 flex items-center gap-2">
           <PanelLeft /> Admin Panel
@@ -199,7 +204,6 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto bg-zinc-50">
         <h1 className="text-3xl font-semibold mb-4 capitalize">{activeTab}</h1>
         {activeTab === "overview" && <Overview />}
