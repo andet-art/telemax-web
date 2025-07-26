@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Pencil,
   Trash,
+  UserCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -19,7 +20,8 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [activeUsers, setActiveUsers] = useState(0);
+  const [activeUsers, setActiveUsers] = useState(0 || []);
+
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -44,11 +46,12 @@ export default function AdminDashboard() {
         } else if (activeTab === "orders") {
           const res = await axios.get(`${API}/api/orders/admin`, { headers });
           setOrders(Array.isArray(res.data) ? res.data : []);
-        }
-
-        if (activeTab === "overview") {
+        } else if (activeTab === "overview") {
           const res = await axios.get(`${API}/api/active-users`);
           setActiveUsers(res.data.count || 0);
+        } else if (activeTab === "activeUsers") {
+          const res = await axios.get(`${API}/api/active-users`);
+          setActiveUsers(Array.isArray(res.data) ? res.data : []);
         }
       } catch (err) {
         console.error("❌ Fetch error:", err);
@@ -67,6 +70,7 @@ export default function AdminDashboard() {
     { label: "Users", key: "users", icon: Users },
     { label: "Products", key: "products", icon: Package },
     { label: "Orders", key: "orders", icon: ShoppingCart },
+    { label: "Active Users", key: "activeUsers", icon: UserCheck },
   ];
 
   const StatCard = ({ label, value }) => (
@@ -105,7 +109,9 @@ export default function AdminDashboard() {
           {users.map((user) => (
             <tr key={user.id} className="border-t">
               <td className="px-4 py-2">{user.id}</td>
-              <td className="px-4 py-2">{user.first_name} {user.last_name}</td>
+              <td className="px-4 py-2">
+                {user.first_name} {user.last_name}
+              </td>
               <td className="px-4 py-2">{user.email}</td>
               <td className="px-4 py-2">{user.phone}</td>
               <td className="px-4 py-2 capitalize">{user.role}</td>
@@ -163,10 +169,18 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-sm font-medium">Customer: {order.full_name}</div>
-              <div className="text-sm text-gray-600">Email: {order.user_email}</div>
-              <div className="text-sm text-gray-600">Total: ${order.total_price}</div>
-              <div className="text-sm text-teal-600 font-semibold">{order.status}</div>
+              <div className="text-sm font-medium">
+                Customer: {order.full_name}
+              </div>
+              <div className="text-sm text-gray-600">
+                Email: {order.user_email}
+              </div>
+              <div className="text-sm text-gray-600">
+                Total: ${order.total_price}
+              </div>
+              <div className="text-sm text-teal-600 font-semibold">
+                {order.status}
+              </div>
             </div>
           </div>
 
@@ -185,8 +199,33 @@ export default function AdminDashboard() {
     </div>
   );
 
+  const ActiveUsersTable = () => (
+    <div className="overflow-x-auto">
+      <table className="w-full bg-white rounded-xl shadow">
+        <thead className="bg-zinc-100">
+          <tr>
+            <th className="px-4 py-3 text-left">Email</th>
+            <th className="px-4 py-3 text-left">Login Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.isArray(activeUsers) &&
+            activeUsers.map((user, idx) => (
+              <tr key={idx} className="border-t">
+                <td className="px-4 py-2">{user.email}</td>
+                <td className="px-4 py-2">
+                  {new Date(user.loginTime).toLocaleString()}
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
   return (
     <div className="flex h-screen">
+      {/* Sidebar */}
       <div className="bg-zinc-900 text-white w-64 p-4 space-y-4">
         <div className="text-2xl font-bold mb-6 flex items-center gap-2">
           <PanelLeft /> Admin Panel
@@ -204,12 +243,14 @@ export default function AdminDashboard() {
         ))}
       </div>
 
+      {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto bg-zinc-50">
         <h1 className="text-3xl font-semibold mb-4 capitalize">{activeTab}</h1>
         {activeTab === "overview" && <Overview />}
         {activeTab === "users" && <UsersTable />}
         {activeTab === "products" && <ProductsTable />}
         {activeTab === "orders" && <OrdersTable />}
+        {activeTab === "activeUsers" && <ActiveUsersTable />}
       </div>
     </div>
   );
