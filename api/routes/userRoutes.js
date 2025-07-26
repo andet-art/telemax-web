@@ -1,9 +1,13 @@
 import { Router } from 'express';
 import { getProfile, getAllUsers } from '../controllers/userController.js';
 import verifyToken from '../middleware/verifyToken.js'; // ✅ FIXED
+import { updateLastActive } from '../controllers/userController.js';
+import { getActiveUserCount } from '../controllers/userController.js';
 
 const router = Router();
 
+router.post('/ping', verifyToken, updateLastActive);
+router.get('/active-count', verifyToken, getActiveUserCount);
 // ✅ Normal user profile
 router.get('/profile', verifyToken, getProfile);
 

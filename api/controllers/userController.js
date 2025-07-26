@@ -1,6 +1,31 @@
 // controllers/userController.js
 import db from '../db.js';
 
+export const getActiveUserCount = async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT COUNT(*) AS count FROM users 
+      WHERE last_active > NOW() - INTERVAL 10 MINUTE
+    `);
+    res.json({ activeUsers: rows[0].count });
+  } catch (err) {
+    console.error("Failed to fetch active user count", err);
+    res.sendStatus(500);
+  }
+};
+
+
+export const updateLastActive = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    await db.query("UPDATE users SET last_active = NOW() WHERE id = ?", [userId]);
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("Failed to update last_active", err);
+    res.sendStatus(500);
+  }
+};
+
 // Get profile of currently logged-in user
 export const getProfile = async (req, res) => {
   try {
@@ -30,6 +55,8 @@ export const getAllUsers = async (req, res) => {
              shipping_address, billing_address, created_at, updated_at
       FROM users
     `);
+
+    
 
     res.json(rows);
   } catch (err) {

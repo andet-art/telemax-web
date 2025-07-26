@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import { useCart } from "../context/CartContext";
 import heroVideo from "../assets/hero-home.mp4";
@@ -12,11 +12,11 @@ export default function Orders() {
   const [sortOption, setSortOption] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
   const [fetchedProducts, setFetchedProducts] = useState<any[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
   const itemsPerPage = 6;
 
   const navigate = useNavigate();
-  const { cart, addToCart } = useCart();
+  const { cart, addToCart, updateQuantity } = useCart();
 
   useEffect(() => {
     fetch(`${API_BASE}/api/products`)
@@ -28,7 +28,7 @@ export default function Orders() {
           date: p.created_at?.slice(0, 10) || new Date().toISOString().slice(0, 10),
           status: "Available",
           image: p.image_url,
-          isCustom: true, // force all fetched products to be customizable
+          price: p.price,
         }));
         setFetchedProducts(mapped);
       })
@@ -57,7 +57,14 @@ export default function Orders() {
     currentPage * itemsPerPage
   );
 
-  const handleAddToCart = (item: any, quantity = 1) => {
+  const handleQuantityChange = (id: number, value: number) => {
+    const newValue = Math.max(1, value);
+    setQuantities((prev) => ({ ...prev, [id]: newValue }));
+    updateQuantity(id, newValue); // Sync with cart
+  };
+
+  const handleAddToCart = (item: any) => {
+    const quantity = quantities[item.id] || 1;
     addToCart(item, quantity);
     toast.success(`Added ${quantity} × ${item.product} to cart!`);
   };
@@ -120,42 +127,81 @@ export default function Orders() {
                 <p className="text-2xl mb-2">😕 No products found</p>
               </div>
             ) : (
-              paginatedOrders.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  className="bg-[#1a120b] border border-[#2a1d13] hover:border-[#c9a36a]/50 transition-all duration-300 shadow-md rounded-2xl p-5 flex flex-col justify-between group"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                  viewport={{ once: true }}
-                >
-                  <div>
-                    <img
-                      src={product.image}
-                      alt={product.product}
-                      className="w-full h-48 object-cover rounded-xl mb-4 group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <h2 className="text-xl font-semibold mb-2">{product.product}</h2>
-                    <p className="text-sm text-stone-400 mb-2">🗓 {product.date}</p>
-                    <span className="inline-block text-xs font-medium px-3 py-1 rounded-full bg-green-800 text-green-300">
-                      {product.status}
-                    </span>
-                  </div>
-                  <div className="mt-4 flex justify-between items-center gap-3">
-                    <button
-                      onClick={() => navigate(`/customize-image/${product.id}`)}
-                      className="flex-1 bg-[#c9a36a] hover:bg-[#b8915b] text-black font-medium px-4 py-2 rounded-md transition"
-                    >
-                      🎨 Customize
-                    </button>
-                    <QuantityAddToCartButton item={product} onAdd={handleAddToCart} />
-                  </div>
-                </motion.div>
-              ))
+              paginatedOrders.map((product, index) => {
+                const quantity = quantities[product.id] || 1;
+                const isInCart = cart.some((item) => item.id === product.id);
+
+                return (
+                  <motion.div
+                    key={product.id}
+                    className="bg-[#1a120b] border border-[#2a1d13] hover:border-[#c9a36a]/50 transition-all duration-300 shadow-md rounded-2xl p-5 flex flex-col justify-between group"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.6 }}
+                    viewport={{ once: true }}
+                  >
+                    <div>
+                      <img
+                        src={product.image}
+                        alt={product.product}
+                        className="w-full h-48 object-cover rounded-xl mb-4 group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <h2 className="text-xl font-semibold mb-2">{product.product}</h2>
+                      <p className="text-sm text-stone-400 mb-2">🗓 {product.date}</p>
+                      <span className="inline-block text-xs font-medium px-3 py-1 rounded-full bg-green-800 text-green-300">
+                        {product.status}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 flex items-center gap-3">
+                      {isInCart ? (
+                        <>
+                          <button
+                            onClick={() =>
+                              handleQuantityChange(product.id, quantity - 1)
+                            }
+                            className="px-3 py-1 bg-stone-800 text-white rounded-l-md border border-stone-700"
+                          >
+                            −
+                          </button>
+                          <span className="px-3 py-1 bg-stone-700 text-white">{quantity}</span>
+                          <button
+                            onClick={() =>
+                              handleQuantityChange(product.id, quantity + 1)
+                            }
+                            className="px-3 py-1 bg-stone-800 text-white rounded-r-md border border-stone-700"
+                          >
+                            +
+                          </button>
+                        </>
+                      ) : (
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => {
+                            handleQuantityChange(product.id, 1);
+                            handleAddToCart(product);
+                          }}
+                          className="bg-[#c9a36a] hover:bg-[#b8915b] px-4 py-2 rounded-md text-black font-medium"
+                        >
+                          + Add
+                        </motion.button>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })
             )}
           </div>
 
-          {/* Pagination */}
+          <div className="flex justify-center mt-10">
+            <button
+              onClick={() => navigate("/customize-image/0")}
+              className="bg-[#c9a36a] hover:bg-[#b8915b] text-black font-medium px-6 py-3 rounded-full shadow-lg transition"
+            >
+              🎨 Start Customizing
+            </button>
+          </div>
+
           <div className="mt-12 flex justify-center gap-2 text-sm">
             {Array.from({ length: Math.ceil(filteredProducts.length / itemsPerPage) }).map((_, i) => {
               const page = i + 1;
@@ -190,32 +236,3 @@ export default function Orders() {
     </>
   );
 }
-
-const QuantityAddToCartButton = ({
-  item,
-  onAdd,
-}: {
-  item: any;
-  onAdd: (item: any, quantity: number) => void;
-}) => {
-  const [quantity, setQuantity] = useState(1);
-
-  return (
-    <div className="flex items-center gap-2">
-      <input
-        type="number"
-        min={1}
-        value={quantity}
-        onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-        className="w-16 text-center rounded bg-stone-800 border border-stone-700 text-white focus:outline-none focus:ring-2 focus:ring-[#c9a36a]"
-      />
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        onClick={() => onAdd(item, quantity)}
-        className="bg-[#c9a36a] hover:bg-[#b8915b] px-4 py-2 rounded-md text-black font-medium"
-      >
-        + Add
-      </motion.button>
-    </div>
-  );
-};
