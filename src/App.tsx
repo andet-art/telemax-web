@@ -14,6 +14,7 @@ import Payment from "./pages/Payment";  // only one import now
 import CustomImageCustomizer from "./pages/CustomImageCustomizer";
 import CustomizePage from "./pages/CustomizePage";
 import AdminDashboard from "./pages/AdminDashboard";
+import OrderHistory from "./pages/OrderHistory";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="/customize-image/:id" element={<CustomImageCustomizer />} />
           <Route path="/customize/:id" element={<CustomizePage />} />
           <Route path="/admindashboard" element={<AdminDashboard />} />
+          <Route path="/order-history" element={<OrderHistory />} />
         </Routes>
       </MainLayout>
     </Router>

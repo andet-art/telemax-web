@@ -19,4 +19,22 @@ router.get('/all-users', verifyToken, (req, res, next) => {
   next();
 }, getAllUsers);
 
+
+router.put('/profile', verifyToken, async (req, res) => {
+  const userId = req.user.id;
+  const { phone, shipping_address, billing_address, marketing_consent } = req.body;
+
+  try {
+    await db.query(
+      `UPDATE users SET phone = ?, shipping_address = ?, billing_address = ?, marketing_consent = ? WHERE id = ?`,
+      [phone, shipping_address, billing_address, marketing_consent, userId]
+    );
+    res.json({ message: "Profile updated" });
+  } catch (err) {
+    console.error("Failed to update profile:", err);
+    res.sendStatus(500);
+  }
+});
+
+
 export default router;

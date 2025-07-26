@@ -229,27 +229,36 @@ export default function AdminDashboard() {
   );
 
   const ActiveUsersTable = () => (
-    <div className="overflow-x-auto">
-      <table className="w-full bg-white rounded-xl shadow">
-        <thead className="bg-zinc-100">
-          <tr>
-            <th className="px-4 py-3 text-left">Email</th>
-            <th className="px-4 py-3 text-left">Login Time</th>
+  <div className="overflow-x-auto">
+    <table className="w-full bg-white rounded-xl shadow">
+      <thead className="bg-zinc-100">
+        <tr>
+          <th className="px-4 py-3 text-left">Email</th>
+          <th className="px-4 py-3 text-left">Last Active</th>
+          <th className="px-4 py-3 text-left">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {activeUsers.map((user, idx) => (
+          <tr key={idx} className="border-t">
+            <td className="px-4 py-2">{user.email}</td>
+            <td className="px-4 py-2">
+              {new Date(user.loginTime).toLocaleString()}
+            </td>
+            <td className="px-4 py-2">
+              {user.isActive ? (
+                <span className="text-green-600 font-medium">Active</span>
+              ) : (
+                <span className="text-gray-500">Inactive</span>
+              )}
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {activeUsers.map((user, idx) => (
-            <tr key={idx} className="border-t">
-              <td className="px-4 py-2">{user.email}</td>
-              <td className="px-4 py-2">
-                {new Date(user.loginTime).toLocaleString()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
 
   return (
     <div className="flex h-screen">
