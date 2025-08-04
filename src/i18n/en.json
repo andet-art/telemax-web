@@ -84,7 +84,51 @@
   "faq_q3": "Do you ship internationally?",
   "faq_a3": "Absolutely. We deliver worldwide...",
   "faq_q4": "Can I request a custom pipe design?",
-  "faq_a4": "Yes! Reach out via our contact form..."
+  "faq_a4": "Yes! Reach out via our contact form...",
+
+  "about.title": "Crafting Stories in Every Pipe",
+"about.subtitle": "Where tradition meets design excellence",
+
+
+
+
+  "company_history_title": "Company History & Philosophy",
+  "company_history_paragraph1": "Our company’s story began in 1965 in Germany, built on a foundation of quality, success, and entrepreneurial spirit. In 2008, we expanded geographically to North Macedonia and operate now in the global market, continually growing with our loyal customers and partners.",
+  "company_history_paragraph2": "Our philosophy reflects dedication to authenticity, sustainability, and craftsmanship passed down through generations. Every piece is carefully handcrafted with timeless quality and intentional design.",
+  "company_history_image_alt": "Philosophy and craftsmanship",
+
+    "products_achievements_title": "Our Products & Achievements",
+  "products_achievements_lighters_title": "Lighters & Smoking Accessories",
+  "products_achievements_lighters_item1": "60+ years as specialist European lighter importers",
+  "products_achievements_lighters_item2": "Distribution of lighters, shishas, electric cigarettes, and filters",
+  "products_achievements_lighters_item3": "ISO 9001:2015 Quality Management, AEO Certified Sender, BSCI Social Compliance",
+  "products_achievements_lighters_item4": "Global presence in over 60 countries",
+  "products_achievements_image_placeholder": "Image Placeholder",
+  "products_achievements_pipe_factory_title": "Smoking Tobacco Pipe Factory",
+  "products_achievements_pipe_factory_paragraph1": "We proudly produce smoking pipes under our brand “Carlo Perrucci” and also as private labeling for many worldwide customers. Our products include pipe stands, tampers, and decorative wood pipes.",
+  "products_achievements_pipe_factory_paragraph2": "Crafted from the finest materials, each pipe is a unique, handcrafted heirloom designed to be treasured across generations.",
+
+
+
+    "quote_section.image_alt": "Background",
+  "quote_section.text": "Design is not just what it looks like and feels like. Design is how it works.",
+  "quote_section.author": "Steve Jobs",
+
+
+    "team_title": "Meet the Team",
+
+    
+    "cta_footer_text": "Ready to experience the craft?",
+  "cta_footer_button": "Get in Touch",
+
+
+    "contact_title": "Contact Us",
+  "contact_subtitle": "We’re here to answer your questions, hear your feedback, and assist with your custom orders.",
+  "contact_name": "Name",
+  "contact_email": "Email",
+  "contact_message": "Message",
+  "contact_submit": "Send Message"
+
 }
 
 

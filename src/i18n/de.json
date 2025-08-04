@@ -82,5 +82,44 @@
   "faq_q3": "Liefern Sie international?",
   "faq_a3": "Ja, wir liefern weltweit...",
   "faq_q4": "Kann ich ein individuelles Pfeifendesign anfragen?",
-  "faq_a4": "Ja! Kontaktieren Sie uns über das Formular und wir gestalten Ihre persönliche Pfeife."
+  "faq_a4": "Ja! Kontaktieren Sie uns über das Formular und wir gestalten Ihre persönliche Pfeife.",
+
+  
+    "about.title": "Geschichten schnitzen mit jeder Pfeife",
+    "about.subtitle": "Wo Tradition auf Designexzellenz trifft",
+
+      "company_history_title": "Firmengeschichte & Philosophie",
+  "company_history_paragraph1": "Die Geschichte unseres Unternehmens begann 1965 in Deutschland, gegründet auf Qualität, Erfolg und Unternehmergeist. 2008 expandierten wir geografisch nach Nordmazedonien und sind nun auf dem globalen Markt aktiv, mit stetigem Wachstum durch unsere treuen Kunden und Partner.",
+  "company_history_paragraph2": "Unsere Philosophie spiegelt Engagement für Authentizität, Nachhaltigkeit und Handwerkskunst wider, die über Generationen weitergegeben wird. Jedes Stück wird sorgfältig mit zeitloser Qualität und bewusstem Design handgefertigt.",
+  "company_history_image_alt": "Philosophie und Handwerkskunst",
+
+    "products_achievements_title": "Unsere Produkte & Erfolge",
+  "products_achievements_lighters_title": "Feuerzeuge & Rauchzubehör",
+  "products_achievements_lighters_item1": "Über 60 Jahre als Spezialist für europäische Feuerzeugimporteure",
+  "products_achievements_lighters_item2": "Vertrieb von Feuerzeugen, Shishas, E-Zigaretten und Filtern",
+  "products_achievements_lighters_item3": "ISO 9001:2015 Qualitätsmanagement, AEO-zertifizierter Versender, BSCI-Sozialkonformität",
+  "products_achievements_lighters_item4": "Weltweite Präsenz in über 60 Ländern",
+  "products_achievements_image_placeholder": "Bildplatzhalter",
+  "products_achievements_pipe_factory_title": "Fabrik für Rauchpfeifen",
+  "products_achievements_pipe_factory_paragraph1": "Wir produzieren stolz Rauchpfeifen unter unserer Marke „Carlo Perrucci“ und auch als Private Labeling für viele weltweite Kunden. Unsere Produkte umfassen Pfeifenständer, Stopfer und dekorative Holzpfeifen.",
+  "products_achievements_pipe_factory_paragraph2": "Aus den feinsten Materialien gefertigt, ist jede Pfeife ein einzigartiges, handgefertigtes Erbstück, das über Generationen geschätzt wird.",
+
+
+    "quote_section.image_alt": "Hintergrund",
+  "quote_section.text": "Design ist nicht nur, wie es aussieht und sich anfühlt. Design ist, wie es funktioniert.",
+  "quote_section.author": "Steve Jobs",
+
+    "team_title": "Lernen Sie das Team kennen",
+
+      "cta_footer_text": "Bereit, das Handwerk zu erleben?",
+  "cta_footer_button": "Kontakt aufnehmen",
+
+
+    "contact_title": "Kontaktieren Sie uns",
+  "contact_subtitle": "Wir sind hier, um Ihre Fragen zu beantworten, Ihr Feedback zu hören und bei individuellen Bestellungen zu helfen.",
+  "contact_name": "Name",
+  "contact_email": "E-Mail",
+  "contact_message": "Nachricht",
+  "contact_submit": "Nachricht senden"
+  
 }
