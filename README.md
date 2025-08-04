@@ -71,3 +71,9 @@ export default tseslint.config([
 ])
 ```
 >>>>>>> 4121ea525c805951f2a016d399309df66de05065
+
+
+
+
+
+section2 homepage needs to be linked with database

@@ -9,6 +9,8 @@ import { LanguageProvider } from "./context/LanguageContext";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./components/AuthContext";
 
+import './i18n/i18n'; // 👈 initialize i18next here
+
 const rootElement = document.getElementById("root")!;
 const root = createRoot(rootElement);
 

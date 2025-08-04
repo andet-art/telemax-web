@@ -16,11 +16,11 @@ export default function Orders() {
   const [fetchedProducts, setFetchedProducts] = useState<any[]>([]);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const itemsPerPage = 6;
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [navbarHidden, setNavbarHidden] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
-
+  const itemsPerPage = 6;
   const navigate = useNavigate();
   const { cart, addToCart, updateQuantity } = useCart();
 
@@ -41,6 +41,17 @@ export default function Orders() {
       })
       .catch((err) => console.error("Failed to fetch products:", err));
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      const isHiding = currentY > lastScrollY && currentY > 10;
+      setNavbarHidden(isHiding);
+      setLastScrollY(currentY);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   const filteredProducts = fetchedProducts
     .filter((p) => (selectedCategory === "All" ? true : p.category === selectedCategory))
@@ -78,51 +89,73 @@ export default function Orders() {
   };
 
   return (
-  <>
-    <Toaster position="top-right" />
+    <>
+      <Toaster position="top-right" />
 
-    {/* Sidebar Toggle Button */}
-    <div
-      onClick={() => setIsSidebarExpanded((prev) => !prev)}
-      className="fixed top-28 left-0 z-50 bg-[#1a120b] hover:bg-[#2a1d13] border-r border-[#2a1d13] text-white flex items-center justify-center w-10 h-12 cursor-pointer transition duration-300 rounded-tr-md rounded-br-md"
-    >
-      {isSidebarExpanded ? "✖" : "☰"}
+     {/* Sidebar Toggle Button */}
+{!isSidebarExpanded && (
+  <div
+    onClick={() => setIsSidebarExpanded(true)}
+    className="fixed top-4 left-0 z-50 bg-[#1a120b] hover:bg-[#2a1d13] border-r border-[#2a1d13] text-white flex items-center justify-center w-8 h-10 cursor-pointer transition duration-300 rounded-tr-md rounded-br-md shadow-md"
+  >
+    ☰
+  </div>
+)}
+
+{/* Sidebar Panel */}
+{/* Sidebar Panel */}
+<aside
+  className={`
+    ${isSidebarExpanded ? "w-64" : "w-0"}
+    ${navbarHidden ? "fixed top-0 h-screen" : "absolute top-16 h-[calc(100%-4rem)]"}
+    left-0 z-40 bg-[#1a120b] border-r border-[#2a1d13] shadow-lg transition-all duration-500 ease-in-out overflow-y-auto
+  `}
+>
+  {isSidebarExpanded && (
+    <div className="relative text-white h-full flex flex-col px-6 pt-16 pb-6">
+      {/* Close Button */}
+      <button
+        onClick={() => setIsSidebarExpanded(false)}
+        className="absolute top-4 right-4 text-white hover:text-[#c9a36a] text-lg transition"
+      >
+        ✖
+      </button>
+
+      <h3 className="text-xl font-bold mb-6 mt-2 flex items-center gap-2 border-b border-[#2a1d13] pb-3">
+        <Layers className="w-5 h-5 text-[#c9a36a]" />
+        <span className="tracking-wide">Categories</span>
+      </h3>
+
+      <ul className="space-y-4 text-sm pb-8">
+        {categoriesList.map((cat) => (
+          <li
+            key={cat}
+            onClick={() => {
+              setSelectedCategory(cat);
+              setCurrentPage(1);
+              setIsSidebarExpanded(false);
+            }}
+            className={`group cursor-pointer px-3 py-2 rounded-md transition-all duration-300 ${
+              selectedCategory === cat
+                ? "bg-[#2a1d13] text-[#c9a36a] font-semibold shadow-inner"
+                : "text-white hover:bg-[#2a1d13] hover:text-[#c9a36a]"
+            }`}
+          >
+            <span className="inline-block transition-transform group-hover:translate-x-1">
+              • {cat}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
+  )}
+</aside>
 
-    {/* Sidebar Panel */}
-    <aside
-      className={`fixed top-28 left-0 z-40 h-[calc(100vh-7rem)] overflow-y-auto bg-[#1a120b] border-r border-[#2a1d13] p-6 transition-all duration-300 ${
-        isSidebarExpanded ? "w-64" : "w-0"
-      }`}
-    >
-      {isSidebarExpanded && (
-        <div className="text-white">
-          <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-            <Layers className="w-5 h-5 text-[#c9a36a]" />
-            Categories
-          </h3>
-          <ul className="space-y-3 text-sm">
-            {categoriesList.map((cat) => (
-              <li
-                key={cat}
-                onClick={() => {
-                  setSelectedCategory(cat);
-                  setCurrentPage(1);
-                  setIsSidebarExpanded(false);
-                }}
-                className={`cursor-pointer transition ${
-                  selectedCategory === cat
-                    ? "text-[#c9a36a] font-semibold"
-                    : "text-white hover:text-[#c9a36a]"
-                }`}
-              >
-                • {cat}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </aside>
+
+
+
+
+
 
     {/* Main Content */}
     <main className="relative min-h-screen pt-28 pb-24 flex overflow-auto bg-[url('/assets/woodgrain.jpg')] bg-cover bg-center text-white font-serif">

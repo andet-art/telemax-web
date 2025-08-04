@@ -15,11 +15,15 @@ import CustomImageCustomizer from "./pages/CustomImageCustomizer";
 import CustomizePage from "./pages/CustomizePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrderHistory from "./pages/OrderHistory";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 function App() {
   return (
     <Router>
       <MainLayout>
+        {/* ✅ Moved LanguageSwitcher OUTSIDE of <Routes> */}
+        <LanguageSwitcher />
+
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/orders" element={<Orders />} />
