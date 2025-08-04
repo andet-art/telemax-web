@@ -4,8 +4,10 @@ import { motion } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import { useCart } from "../context/CartContext";
 import heroVideo from "../assets/hero-home.mp4";
+import { Layers } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://209.38.231.125:4000";
+const categoriesList = ["All", "Wood", "Metal", "Hybrid", "Luxury"];
 
 export default function Orders() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,7 +15,11 @@ export default function Orders() {
   const [currentPage, setCurrentPage] = useState(1);
   const [fetchedProducts, setFetchedProducts] = useState<any[]>([]);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const itemsPerPage = 6;
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+
 
   const navigate = useNavigate();
   const { cart, addToCart, updateQuantity } = useCart();
@@ -25,6 +31,7 @@ export default function Orders() {
         const mapped = data.map((p: any) => ({
           id: p.id,
           product: p.name,
+          category: p.category || "Uncategorized",
           date: p.created_at?.slice(0, 10) || new Date().toISOString().slice(0, 10),
           status: "Available",
           image: p.image_url,
@@ -36,6 +43,7 @@ export default function Orders() {
   }, []);
 
   const filteredProducts = fetchedProducts
+    .filter((p) => (selectedCategory === "All" ? true : p.category === selectedCategory))
     .filter((p) => p.product.toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => {
       switch (sortOption) {
@@ -60,7 +68,7 @@ export default function Orders() {
   const handleQuantityChange = (id: number, value: number) => {
     const newValue = Math.max(1, value);
     setQuantities((prev) => ({ ...prev, [id]: newValue }));
-    updateQuantity(id, newValue); // Sync with cart
+    updateQuantity(id, newValue);
   };
 
   const handleAddToCart = (item: any) => {
@@ -70,169 +78,219 @@ export default function Orders() {
   };
 
   return (
-    <>
-      <Toaster position="top-right" />
-      <main className="relative min-h-screen text-white font-serif overflow-hidden bg-[url('/assets/woodgrain.jpg')] bg-cover bg-center">
-        <video
-          src={heroVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-10 z-0"
-        />
-        <div className="absolute inset-0 bg-black/70 z-10" />
+  <>
+    <Toaster position="top-right" />
 
-        <div className="relative z-20 pt-36 px-4 pb-24 max-w-6xl mx-auto">
-          <motion.h1
-            className="text-4xl sm:text-5xl font-bold mb-10 text-center text-white drop-shadow-xl"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            Our Custom Pipes
-          </motion.h1>
+    {/* Sidebar Toggle Button */}
+    <div
+      onClick={() => setIsSidebarExpanded((prev) => !prev)}
+      className="fixed top-28 left-0 z-50 bg-[#1a120b] hover:bg-[#2a1d13] border-r border-[#2a1d13] text-white flex items-center justify-center w-10 h-12 cursor-pointer transition duration-300 rounded-tr-md rounded-br-md"
+    >
+      {isSidebarExpanded ? "✖" : "☰"}
+    </div>
 
-          <motion.section
-            className="relative w-full max-w-5xl mx-auto rounded-xl overflow-hidden bg-[#2a1d13] border border-stone-700 px-6 py-8 mb-12"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
-              <input
-                type="text"
-                placeholder="🔍 Search pipes..."
-                className="w-full md:flex-1 px-4 py-2.5 text-sm rounded-md bg-stone-800 text-white border border-stone-600 focus:outline-none focus:ring-2 focus:ring-[#c9a36a]"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value)}
-                className="px-4 py-2.5 text-sm rounded-md bg-stone-800 text-white border border-stone-600 focus:outline-none focus:ring-2 focus:ring-[#c9a36a]"
+    {/* Sidebar Panel */}
+    <aside
+      className={`fixed top-28 left-0 z-40 h-[calc(100vh-7rem)] overflow-y-auto bg-[#1a120b] border-r border-[#2a1d13] p-6 transition-all duration-300 ${
+        isSidebarExpanded ? "w-64" : "w-0"
+      }`}
+    >
+      {isSidebarExpanded && (
+        <div className="text-white">
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+            <Layers className="w-5 h-5 text-[#c9a36a]" />
+            Categories
+          </h3>
+          <ul className="space-y-3 text-sm">
+            {categoriesList.map((cat) => (
+              <li
+                key={cat}
+                onClick={() => {
+                  setSelectedCategory(cat);
+                  setCurrentPage(1);
+                  setIsSidebarExpanded(false);
+                }}
+                className={`cursor-pointer transition ${
+                  selectedCategory === cat
+                    ? "text-[#c9a36a] font-semibold"
+                    : "text-white hover:text-[#c9a36a]"
+                }`}
               >
-                <option value="newest">📅 Newest First</option>
-                <option value="oldest">📅 Oldest First</option>
-                <option value="az">🔤 A–Z</option>
-                <option value="za">🔤 Z–A</option>
-              </select>
-            </div>
-          </motion.section>
+                • {cat}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </aside>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginatedOrders.length === 0 ? (
-              <div className="col-span-full text-center text-stone-400 py-20">
-                <p className="text-2xl mb-2">😕 No products found</p>
-              </div>
-            ) : (
-              paginatedOrders.map((product, index) => {
-                const quantity = quantities[product.id] || 1;
-                const isInCart = cart.some((item) => item.id === product.id);
+    {/* Main Content */}
+    <main className="relative min-h-screen pt-28 pb-24 flex overflow-auto bg-[url('/assets/woodgrain.jpg')] bg-cover bg-center text-white font-serif">
+      <video
+        src={heroVideo}
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover opacity-10 z-0"
+      />
+      <div className="absolute inset-0 bg-black/70 z-0" />
 
-                return (
-                  <motion.div
-                    key={product.id}
-                    className="bg-[#1a120b] border border-[#2a1d13] hover:border-[#c9a36a]/50 transition-all duration-300 shadow-md rounded-2xl p-5 flex flex-col justify-between group"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.6 }}
-                    viewport={{ once: true }}
-                  >
-                    <div>
-                      <img
-                        src={product.image}
-                        alt={product.product}
-                        className="w-full h-48 object-cover rounded-xl mb-4 group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <h2 className="text-xl font-semibold mb-2">{product.product}</h2>
-                      <p className="text-sm text-stone-400 mb-2">🗓 {product.date}</p>
-                      <span className="inline-block text-xs font-medium px-3 py-1 rounded-full bg-green-800 text-green-300">
-                        {product.status}
-                      </span>
-                    </div>
+      <motion.div
+        className={`relative z-20 flex-1 px-6 transition-all duration-300 ${
+          isSidebarExpanded ? "ml-64" : "ml-10"
+        }`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+      >
+        <motion.h1
+          className="text-4xl sm:text-5xl font-bold mb-10 text-center drop-shadow-xl"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          Our Custom Pipes
+        </motion.h1>
 
-                    <div className="mt-4 flex items-center gap-3">
-                      {isInCart ? (
-                        <>
-                          <button
-                            onClick={() =>
-                              handleQuantityChange(product.id, quantity - 1)
-                            }
-                            className="px-3 py-1 bg-stone-800 text-white rounded-l-md border border-stone-700"
-                          >
-                            −
-                          </button>
-                          <span className="px-3 py-1 bg-stone-700 text-white">{quantity}</span>
-                          <button
-                            onClick={() =>
-                              handleQuantityChange(product.id, quantity + 1)
-                            }
-                            className="px-3 py-1 bg-stone-800 text-white rounded-r-md border border-stone-700"
-                          >
-                            +
-                          </button>
-                        </>
-                      ) : (
-                        <motion.button
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => {
-                            handleQuantityChange(product.id, 1);
-                            handleAddToCart(product);
-                          }}
-                          className="bg-[#c9a36a] hover:bg-[#b8915b] px-4 py-2 rounded-md text-black font-medium"
-                        >
-                          + Add
-                        </motion.button>
-                      )}
-                    </div>
-                  </motion.div>
-                );
-              })
-            )}
-          </div>
-
-          <div className="flex justify-center mt-10">
-            <button
-              onClick={() => navigate("/customize-image/0")}
-              className="bg-[#c9a36a] hover:bg-[#b8915b] text-black font-medium px-6 py-3 rounded-full shadow-lg transition"
+        {/* Filters */}
+        <motion.section
+          className="max-w-5xl mx-auto bg-[#2a1d13] border border-stone-700 rounded-xl px-6 py-8 mb-12"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
+            <input
+              type="text"
+              placeholder="🔍 Search pipes..."
+              className="w-full md:flex-1 px-4 py-2.5 text-sm rounded-md bg-stone-800 text-white border border-stone-600 focus:outline-none focus:ring-2 focus:ring-[#c9a36a]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="px-4 py-2.5 text-sm rounded-md bg-stone-800 text-white border border-stone-600 focus:outline-none focus:ring-2 focus:ring-[#c9a36a]"
             >
-              🎨 Start Customizing
-            </button>
+              <option value="newest">📅 Newest First</option>
+              <option value="oldest">📅 Oldest First</option>
+              <option value="az">🔤 A–Z</option>
+              <option value="za">🔤 Z–A</option>
+            </select>
           </div>
+        </motion.section>
 
-          <div className="mt-12 flex justify-center gap-2 text-sm">
-            {Array.from({ length: Math.ceil(filteredProducts.length / itemsPerPage) }).map((_, i) => {
-              const page = i + 1;
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {paginatedOrders.length === 0 ? (
+            <div className="col-span-full text-center text-stone-400 py-20">
+              <p className="text-2xl mb-2">😕 No products found</p>
+            </div>
+          ) : (
+            paginatedOrders.map((product, idx) => {
+              const quantity = quantities[product.id] || 1;
+              const isInCart = cart.some((i) => i.id === product.id);
               return (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-4 py-2 rounded-md border ${
-                    page === currentPage
-                      ? "bg-[#c9a36a] text-black border-[#c9a36a]"
-                      : "bg-[#2a1d13] text-white border-stone-700 hover:bg-[#3b2f2f]"
-                  } transition`}
+                <motion.div
+                  key={product.id}
+                  className="bg-[#1a120b] border border-[#2a1d13] rounded-2xl p-5 flex flex-col justify-between shadow-md hover:border-[#c9a36a]/50 transition-all duration-300 group"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1, duration: 0.6 }}
+                  viewport={{ once: true }}
                 >
-                  {page}
-                </button>
+                  <div>
+                    <img
+                      src={product.image}
+                      alt={product.product}
+                      className="w-full h-48 object-cover rounded-xl mb-4 group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <h2 className="text-xl font-semibold mb-2">{product.product}</h2>
+                    <p className="text-sm text-stone-400 mb-2">🗓 {product.date}</p>
+                    <span className="inline-block text-xs font-medium px-3 py-1 rounded-full bg-green-800 text-green-300">
+                      {product.status}
+                    </span>
+                  </div>
+                  <div className="mt-4 flex items-center gap-3">
+                    {isInCart ? (
+                      <>
+                        <button
+                          onClick={() => handleQuantityChange(product.id, quantity - 1)}
+                          className="px-3 py-1 bg-stone-800 text-white rounded-l-md border border-stone-700"
+                        >
+                          −
+                        </button>
+                        <span className="px-3 py-1 bg-stone-700 text-white">{quantity}</span>
+                        <button
+                          onClick={() => handleQuantityChange(product.id, quantity + 1)}
+                          className="px-3 py-1 bg-stone-800 text-white rounded-r-md border border-stone-700"
+                        >
+                          +
+                        </button>
+                      </>
+                    ) : (
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          handleQuantityChange(product.id, 1);
+                          handleAddToCart(product);
+                        }}
+                        className="bg-[#c9a36a] hover:bg-[#b8915b] px-4 py-2 rounded-md text-black font-medium"
+                      >
+                        + Add
+                      </motion.button>
+                    )}
+                  </div>
+                </motion.div>
               );
-            })}
-          </div>
+            })
+          )}
         </div>
 
-        {cart.length > 0 && (
-          <motion.button
-            className="fixed bottom-6 right-6 bg-[#c9a36a] text-black px-6 py-3 rounded-full shadow-lg hover:brightness-110 transition-transform active:scale-95 z-50"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            onClick={() => navigate("/cart")}
+        {/* Customize Button */}
+        <div className="flex justify-center mt-10">
+          <button
+            onClick={() => navigate("/customize-image/0")}
+            className="bg-[#c9a36a] hover:bg-[#b8915b] text-black font-medium px-6 py-3 rounded-full shadow-lg transition"
           >
-            🛒 View Cart ({cart.reduce((acc, i) => acc + i.quantity, 0)})
-          </motion.button>
-        )}
-      </main>
-    </>
-  );
+            🎨 Start Customizing
+          </button>
+        </div>
+
+        {/* Pagination */}
+        <div className="mt-12 flex justify-center gap-2 text-sm">
+          {Array.from({ length: Math.ceil(filteredProducts.length / itemsPerPage) }).map((_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-4 py-2 rounded-md border ${
+                i + 1 === currentPage
+                  ? "bg-[#c9a36a] text-black border-[#c9a36a]"
+                  : "bg-[#2a1d13] text-white border-stone-700 hover:bg-[#3b2f2f]"
+              } transition`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Floating Cart */}
+      {cart.length > 0 && (
+        <motion.button
+          className="fixed bottom-6 right-6 bg-[#c9a36a] text-black px-6 py-3 rounded-full shadow-lg hover:brightness-110 active:scale-95 z-50"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          onClick={() => navigate("/cart")}
+        >
+          🛒 View Cart ({cart.reduce((acc, cur) => acc + cur.quantity, 0)})
+        </motion.button>
+      )}
+    </main>
+  </>
+);
+
+
 }
