@@ -10,11 +10,15 @@ import SignIn from "./pages/signin";
 import SignUp from "./pages/signup";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
+<<<<<<< HEAD
 import Payment from "./pages/Payment";  // only one import now
 import CustomImageCustomizer from "./pages/CustomImageCustomizer";
 import CustomizePage from "./pages/CustomizePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrderHistory from "./pages/OrderHistory";
+=======
+import Payment from "./pages/Payment";
+>>>>>>> 3155dfb (email)
 
 function App() {
   return (
