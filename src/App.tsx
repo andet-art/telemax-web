@@ -10,16 +10,20 @@ import SignIn from "./pages/signin";
 import SignUp from "./pages/signup";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
-import Payment from "./pages/Payment";  // only one import now
+import Payment from "./pages/Payment";
 import CustomImageCustomizer from "./pages/CustomImageCustomizer";
 import CustomizePage from "./pages/CustomizePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrderHistory from "./pages/OrderHistory";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 function App() {
   return (
     <Router>
       <MainLayout>
+        {/* ✅ Moved LanguageSwitcher OUTSIDE of <Routes> */}
+        <LanguageSwitcher />
+
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/orders" element={<Orders />} />

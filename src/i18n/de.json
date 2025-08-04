@@ -3,15 +3,15 @@
   "home.hero_subtitle": "Handgefertigte Tabakpfeifen aus Tenovo, Nordmazedonien.",
   "home.view_collection": "Kollektion ansehen",
   "home.our_story": "Unsere Geschichte",
-  "home.story_text": "Seit 1989 widmen wir uns mit Leidenschaft der Herstellung von hochwertigen Tabakpfeifen. Jedes Stück ist ein Meisterwerk aus Tradition, Technik und Liebe zum Detail.",
+  "home.story_text": "Seit 1989 fertigen wir mit Leidenschaft erstklassige Tabakpfeifen. Jedes Stück ist ein Meisterwerk der Tradition, Technik und Detailverliebtheit.",
   "home.featured_models": "Ausgewählte Modelle",
   "home.model": "Modell",
-  "home.model_sub": "Edles Holz, fein verarbeitet.",
+  "home.model_sub": "Feines Holz, kunstvoll gefertigt.",
   "home.see_all": "Alle Produkte ansehen",
-  "home.testimonials": "Stimmen unserer Kunden",
-  "home.testimonial_1": "Die beste Pfeife, die ich je geraucht habe – fein verarbeitet und wunderbar im Griff.",
+  "home.testimonials": "Kundenstimmen",
+  "home.testimonial_1": "Die beste Pfeife, die ich je geraucht habe – fein verarbeitet und angenehm in der Hand.",
   "home.testimonial_1_name": "Herr B. aus München",
-  "home.testimonial_2": "Ein Kunstwerk aus Holz. Ich habe gleich zwei Modelle bestellt.",
+  "home.testimonial_2": "Ein hölzernes Meisterwerk. Ich habe sofort zwei bestellt.",
   "home.testimonial_2_name": "Frau R. aus Zürich",
   "home.nav_home": "Startseite",
   "home.nav_about": "Über uns",
@@ -22,5 +22,65 @@
   "orders": "Bestellungen",
   "contact": "Kontakt",
   "signin": "Anmelden",
-  "join": "Jetzt beitreten"
+  "join": "Jetzt beitreten",
+
+  "section1_title": "Die Kunst der Pfeifenherstellung",
+  "section1_feat1": "Handgefertigt aus bestem Bruyèreholz",
+  "section1_feat2": "Einzigartige Designs – keine gleicht der anderen",
+  "section1_feat3": "Jahrzehntelange Handwerkstradition",
+  "section1_feat4": "Lokal bezogen in Tetovo, Nordmazedonien",
+  "section1_quote": "Jede Pfeife erzählt eine mit Sorgfalt geschnitzte Geschichte.",
+  "learn_more_button": "Mehr erfahren",
+  "section1_img_alt": "Handwerker beim Schnitzen einer Tabakpfeife",
+
+  "section2_title": "Unsere Pfeifenkollektion",
+  "model_1": "Modell 1",
+  "model_1_price": "149 € · Handgemacht",
+  "model_1_sub": "Feines Holz, kunstvoll gefertigt.",
+
+  "model_2": "Modell 2",
+  "model_2_price": "149 € · Handgemacht",
+  "model_2_sub": "Feines Holz, kunstvoll gefertigt.",
+
+  "model_3": "Modell 3",
+  "model_3_price": "149 € · Handgemacht",
+  "model_3_sub": "Feines Holz, kunstvoll gefertigt.",
+
+  "view_detail": "Details ansehen",
+
+  "timeline_title": "Geprägt von der Zeit",
+  "timeline_intro": "Momente, die unser Handwerk geprägt haben.",
+  "timeline_event1": "Gegründet von Meisterhandwerkern in Tetovo.",
+  "timeline_event2": "Einführung unserer handgefertigten Bruyère-Pfeifen.",
+  "timeline_event3": "Internationale Anerkennung in ganz Europa.",
+  "timeline_event4": "Eröffnung der modernen Werkstatt und Start unseres globalen Online-Shops.",
+  "learn_more_button": "Unsere Geschichte entdecken",
+
+  "quote_text": "Jede Pfeife erzählt eine Geschichte — von Geduld, Feuer und Tradition.",
+  "quote_author": "Meisterhandwerker, Telemax",
+  "contact_cta": "Kontakt aufnehmen",
+
+  "testimonials_title": "Was unsere Kunden sagen",
+
+  "testimonial1_text": "Absolut atemberaubende Handwerkskunst. Meine Pfeife fühlt sich an wie ein Stück Geschichte.",
+  "testimonial1_author": "Elton Gashi, Zürich",
+
+  "testimonial2_text": "Jedes Produkt ist wirklich einzigartig. Die Details und die Tradition sind deutlich spürbar.",
+  "testimonial2_author": "Marija Petrova, Skopje",
+
+  "testimonial3_text": "Telemax-Pfeifen sind perfekte Geschenke. Jeder, dem ich eine geschenkt habe, war von der Qualität begeistert.",
+  "testimonial3_author": "Andreas Müller, Berlin",
+
+  "gallery_title": "Galerie des Handwerks",
+  "gallery_item_label": "Tippen zum Ansehen",
+
+  "faq_title": "Häufig gestellte Fragen",
+  "faq_q1": "Welche Materialien verwenden Sie für Ihre Pfeifen?",
+  "faq_a1": "Wir verwenden ausschließlich hochwertiges Bruyèreholz...",
+  "faq_q2": "Sind Ihre Produkte handgefertigt?",
+  "faq_a2": "Ja, jedes Stück wird von erfahrenen Handwerkern gefertigt...",
+  "faq_q3": "Liefern Sie international?",
+  "faq_a3": "Ja, wir liefern weltweit...",
+  "faq_q4": "Kann ich ein individuelles Pfeifendesign anfragen?",
+  "faq_a4": "Ja! Kontaktieren Sie uns über das Formular und wir gestalten Ihre persönliche Pfeife."
 }

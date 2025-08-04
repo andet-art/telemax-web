@@ -23,7 +23,68 @@
   "orders": "Orders",
   "contact": "Contact",
   "signin": "Sign In",
-  "join": "Join Now"
+  "join": "Join Now",
+
+  "section1_title": "Mastering the Art of Pipe Making",
+  "section1_feat1": "Handcrafted from finest briar wood",
+  "section1_feat2": "Unique designs, no two alike",
+  "section1_feat3": "Decades of artisan tradition",
+  "section1_feat4": "Sourced locally in Tetovo, North Macedonia",
+  "section1_quote": "Each pipe tells a story carved with care.",
+  "learn_more_button": "Learn More",
+  "section1_img_alt": "Artisan carving a tobacco pipe",
+
+    "section2_title": "Our Pipe Collection",
+  "model_1": "Model 1",
+  "model_1_price": "$149 · Handmade",
+  "model_1_sub": "Fine wood, beautifully crafted.",
+
+  "model_2": "Model 2",
+  "model_2_price": "$149 · Handmade",
+  "model_2_sub": "Fine wood, beautifully crafted.",
+
+  "model_3": "Model 3",
+  "model_3_price": "$149 · Handmade",
+  "model_3_sub": "Fine wood, beautifully crafted.",
+
+  "view_detail": "View Details",
+
+    "timeline_title": "Crafted by Time",
+  "timeline_intro": "Moments that shaped our craft.",
+  "timeline_event1": "Founded by artisan masters in Tetovo.",
+  "timeline_event2": "Introduced signature handmade briar pipes.",
+  "timeline_event3": "Gained international recognition across Europe.",
+  "timeline_event4": "Opened modern facility and launched global online store.",
+  "learn_more_button": "Discover Our Story",
+
+    "quote_text": "Every pipe tells a story — one of patience, fire, and legacy.",
+  "quote_author": "Master Artisan, Telemax",
+  "contact_cta": "Get in Touch",
+
+    "testimonials_title": "What Our Clients Say",
+
+  "testimonial1_text": "Absolutely stunning craftsmanship. My pipe feels like a piece of history in my hands.",
+  "testimonial1_author": "Elton Gashi, Zurich",
+
+  "testimonial2_text": "Each product feels truly one-of-a-kind. The detail and tradition shine through.",
+  "testimonial2_author": "Marija Petrova, Skopje",
+
+  "testimonial3_text": "Telemax pipes make perfect gifts. Everyone I’ve given one to is amazed by the quality.",
+  "testimonial3_author": "Andreas Müller, Berlin",
 
 
+    "gallery_title": "Gallery of Craftsmanship",
+  "gallery_item_label": "Tap to view",
+
+  "faq_title": "Frequently Asked Questions",
+ "faq_q1": "What materials do you use for your pipes?",
+  "faq_a1": "We use only high-quality briar wood...",
+  "faq_q2": "Are your products handmade?",
+  "faq_a2": "Yes, each piece is handcrafted...",
+  "faq_q3": "Do you ship internationally?",
+  "faq_a3": "Absolutely. We deliver worldwide...",
+  "faq_q4": "Can I request a custom pipe design?",
+  "faq_a4": "Yes! Reach out via our contact form..."
 }
+
+
