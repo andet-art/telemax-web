@@ -22,19 +22,23 @@ const Contact = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    console.log("Form Submitted:", formData);
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
+  e.preventDefault();
+  setIsSubmitting(true);
+
+  try {
+    const response = await fetch("http://209.38.231.125:4000/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log("Success:", result.message);
+      setIsSubmitted(true);
       setFormData({
         firstName: "",
         lastName: "",
@@ -44,8 +48,21 @@ const Contact = () => {
         subject: "",
         message: "",
       });
-    }, 3000);
-  };
+
+      setTimeout(() => setIsSubmitted(false), 3000);
+    } else {
+      console.error("Failed to submit:", result.message);
+      alert("Failed to send message. Please try again later.");
+    }
+  } catch (err) {
+    console.error("Error submitting:", err);
+    alert("Server error. Please try again later.");
+  }
+
+  setIsSubmitting(false);
+};
+
+
 
   if (isSubmitted) {
     return (

@@ -1700,74 +1700,7 @@ export default function EnhancedOrdersPage() {
                             </div>
                           </div>
 
-                                                    {/* Enhanced Specifications */}
+                          {/* Enhanced Specifications */}
                           <div className="bg-gradient-to-br from-[#2a1d13]/60 to-[#1a120b]/60 rounded-2xl p-6 backdrop-blur-sm border border-[#c9a36a]/20">
                             <h4 className="text-xl font-bold mb-6 text-[#c9a36a] flex items-center gap-2">
                               <Package className="w-5 h-5" />
-                              Specifications
-                            </h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              {[
-                                { label: "Head", specs: selectedHead?.features },
-                                { label: "Ring", specs: selectedRing?.features },
-                                { label: "Tail", specs: selectedTail?.features },
-                              ].map(({ label, specs }, i) => (
-                                <div
-                                  key={i}
-                                  className="p-4 bg-[#1a120b]/50 rounded-xl border border-[#c9a36a]/10 space-y-2"
-                                >
-                                  <h5 className="text-[#c9a36a] font-semibold">
-                                    {label} Features
-                                  </h5>
-                                  <ul className="text-sm text-stone-300 list-disc list-inside space-y-1">
-                                    {specs?.map((feature, idx) => (
-                                      <li key={idx}>{feature}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Confirm Button */}
-                          <div className="text-center mt-10">
-                            <motion.button
-                              onClick={addCustomPipeToCart}
-                              disabled={!customPipeName.trim()}
-                              className={`px-8 py-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 touch-manipulation shadow-xl ${
-                                customPipeName.trim()
-                                  ? 'bg-gradient-to-r from-[#c9a36a] to-[#d4b173] hover:from-[#d4b173] hover:to-[#e5c584] text-black shadow-[#c9a36a]/25'
-                                  : 'bg-stone-700/50 text-stone-400 cursor-not-allowed'
-                              }`}
-                              whileHover={customPipeName.trim() ? { scale: 1.02 } : {}}
-                              whileTap={customPipeName.trim() ? { scale: 0.98 } : {}}
-                            >
-                              <ShoppingBag className="w-5 h-5" />
-                              <span className="text-sm">Confirm & Add to Cart</span>
-                            </motion.button>
-
-                            {/* Back to Edit */}
-                            <button
-                              onClick={() => setPreviewMode(false)}
-                              className="mt-6 text-sm text-stone-400 hover:text-[#c9a36a] transition"
-                            >
-                              ← Back to Edit Mode
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-center py-12 text-stone-400">
-                          <p>Please complete your custom pipe design to preview.</p>
-                        </div>
-                      )}
-                    </div>
-                  </motion.section>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      </main>
-    </>
-  );
-}

@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
+
 import { 
   Layers, 
   Palette, 
@@ -1701,6 +1703,7 @@ export default function EnhancedOrdersPage() {
                           </div>
 
                                                     {/* Enhanced Specifications */}
+                                                    {/* Enhanced Specifications */}
                           <div className="bg-gradient-to-br from-[#2a1d13]/60 to-[#1a120b]/60 rounded-2xl p-6 backdrop-blur-sm border border-[#c9a36a]/20">
                             <h4 className="text-xl font-bold mb-6 text-[#c9a36a] flex items-center gap-2">
                               <Package className="w-5 h-5" />
@@ -1733,6 +1736,7 @@ export default function EnhancedOrdersPage() {
                           <div className="text-center mt-10">
                             <motion.button
                               onClick={addCustomPipeToCart}
+                              
                               disabled={!customPipeName.trim()}
                               className={`px-8 py-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 touch-manipulation shadow-xl ${
                                 customPipeName.trim()
@@ -1745,6 +1749,20 @@ export default function EnhancedOrdersPage() {
                               <ShoppingBag className="w-5 h-5" />
                               <span className="text-sm">Confirm & Add to Cart</span>
                             </motion.button>
+
+                            
+  {/* View Cart Button */}
+{/* Always show cart button */}
+<Link
+  to="/cart"
+  className="inline-flex items-center justify-center gap-2 mt-4 text-sm text-[#c9a36a] hover:text-[#e5c584] transition"
+>
+  <ShoppingCart className="w-4 h-4" />
+  View Cart
+</Link>
+
+
+                            
 
                             {/* Back to Edit */}
                             <button

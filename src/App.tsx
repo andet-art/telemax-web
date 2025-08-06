@@ -5,7 +5,6 @@ import Orders from "./pages/Orders";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import FAQ from "./components/FAQ";
-import Cart from "./pages/cart";
 import SignIn from "./pages/signin";
 import SignUp from "./pages/signup";
 import Checkout from "./pages/Checkout";
@@ -16,6 +15,7 @@ import CustomizePage from "./pages/CustomizePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrderHistory from "./pages/OrderHistory";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import Cart from "./pages/cart";
 
 function App() {
   return (
