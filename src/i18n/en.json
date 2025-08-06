@@ -271,7 +271,9 @@
   "customPipeDefault": "Custom Pipe",
   "unnamedCustomPipe": "Unnamed Custom Pipe",
   "completeYourDesignAlert": "Please complete your custom pipe design and add a name!",
-  "customPipeAddedAlert": "Custom pipe added to cart!"
+  "customPipeAddedAlert": "Custom pipe added to cart!",
+
+    "browse_orders": "Explore All Pipes"
 
 }
 

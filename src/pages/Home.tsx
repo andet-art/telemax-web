@@ -1,5 +1,7 @@
 // ✅ React & Core Hooks
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 // ✅ Sanity Client & Queries
 import { sanity } from "@/lib/sanityClient";
@@ -47,6 +49,7 @@ const Home = () => {
   // 🔹 UI State
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // 🔹 Sanity CMS Data
   const [cmsData, setCmsData] = useState<{
@@ -499,6 +502,16 @@ const Home = () => {
       </motion.div>
     )}
   </AnimatePresence>
+
+  {/* Call-to-action Button */}
+<div className="text-center mt-16">
+  <button
+    onClick={() => navigate("/orders")}
+    className="inline-flex items-center gap-2 bg-[#c9a36a] hover:bg-[#b8915b] text-black font-semibold text-sm sm:text-base px-6 py-3 rounded-full transition duration-300 shadow-lg hover:shadow-xl"
+  >
+    {t("browse_orders") || "Explore All Pipes"}
+  </button>
+</div>
 </section>
 
 

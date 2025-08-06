@@ -261,7 +261,9 @@
   "customPipeDefault": "Individuelle Pfeife",
   "unnamedCustomPipe": "Unbenannte individuelle Pfeife",
   "completeYourDesignAlert": "Bitte vervollständigen Sie Ihr Pfeifen-Design und fügen Sie einen Namen hinzu!",
-  "customPipeAddedAlert": "Individuelle Pfeife zum Warenkorb hinzugefügt!"
+  "customPipeAddedAlert": "Individuelle Pfeife zum Warenkorb hinzugefügt!",
+
+   "browse_orders": "Alle Pfeifen entdecken"
   
   
 }
