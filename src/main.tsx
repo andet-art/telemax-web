@@ -5,7 +5,7 @@ import App from "./App";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import { LanguageProvider } from "./context/LanguageContext";
+
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./components/AuthContext";
 
@@ -16,12 +16,12 @@ const root = createRoot(rootElement);
 
 root.render(
   <StrictMode>
-    <LanguageProvider>
+    
       <CartProvider>
         <AuthProvider>
         <App />
         </AuthProvider>
       </CartProvider>
-    </LanguageProvider>
+    
   </StrictMode>
 );

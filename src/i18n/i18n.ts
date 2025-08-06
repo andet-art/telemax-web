@@ -6,13 +6,14 @@ import en from "./en.json";
 import de from "./de.json";
 
 i18n
-  .use(LanguageDetector) // auto-detects from browser or localStorage
+  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources: {
       en: { translation: en },
       de: { translation: de },
     },
+    lng: localStorage.getItem("i18nextLng") || "en", // 👈 explicit initial language
     fallbackLng: "en",
     detection: {
       order: ["localStorage", "navigator"],

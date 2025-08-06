@@ -7,7 +7,7 @@ import { homeContentQuery } from "@/lib/queries";
 
 // ✅ Routing & Translations
 import { Link } from "react-router-dom";
-import { useLang } from "../context/LanguageContext";
+import { useTranslation } from "react-i18next";
 
 // ✅ Components
 import FAQ from "../components/FAQ";
@@ -41,7 +41,7 @@ import artisan2 from "../assets/artisan2.jpg";
 gsap.registerPlugin(ScrollTrigger);
 
 const Home = () => {
-  const { t } = useLang();
+  const { t } = useTranslation();
   const pipes = [pipe1, pipe2, pipe3];
 
   // 🔹 UI State
@@ -195,7 +195,7 @@ const Home = () => {
       viewport={{ once: true }}
     >
       <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight tracking-tight text-white drop-shadow">
-        {t("section1_title") || "Tradition Meets Craftsmanship"}
+        {t("section1_title")}
       </h2>
 
       <ul className="space-y-4">

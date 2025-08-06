@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
 import { FaFacebookF, FaInstagram, FaTwitter, FaLinkedinIn } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   return (
     <motion.footer
       initial={{ opacity: 0, y: 50 }}
@@ -14,9 +17,9 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
         {/* About */}
         <div>
-          <h3 className="text-white font-serif text-2xl mb-4">Telemax</h3>
+          <h3 className="text-white font-serif text-2xl mb-4">{t("footer.company")}</h3>
           <p className="text-stone-400 max-w-sm leading-relaxed mb-6">
-            Handcrafted tobacco pipes from Tenovo, Tetovo, North Macedonia. Tradition and quality in every detail.
+            {t("footer.description")}
           </p>
           <div className="flex space-x-5">
             {[FaFacebookF, FaInstagram, FaTwitter, FaLinkedinIn].map((Icon, idx) => (
@@ -34,26 +37,26 @@ const Footer = () => {
 
         {/* Quick Links */}
         <div>
-          <h4 className="text-white font-semibold text-xl mb-4">Quick Links</h4>
+          <h4 className="text-white font-semibold text-xl mb-4">{t("footer.links.title")}</h4>
           <ul className="space-y-2">
             <li>
               <Link to="/" className="hover:text-amber-600 transition-colors">
-                Home
+                {t("footer.links.home")}
               </Link>
             </li>
             <li>
               <Link to="/about" className="hover:text-amber-600 transition-colors">
-                About Us
+                {t("footer.links.about")}
               </Link>
             </li>
             <li>
               <Link to="/products" className="hover:text-amber-600 transition-colors">
-                Products
+                {t("footer.links.products")}
               </Link>
             </li>
             <li>
               <Link to="/contact" className="hover:text-amber-600 transition-colors">
-                Contact
+                {t("footer.links.contact")}
               </Link>
             </li>
           </ul>
@@ -61,12 +64,12 @@ const Footer = () => {
 
         {/* Contact */}
         <div>
-          <h4 className="text-white font-semibold text-xl mb-4">Contact</h4>
-          <p className="mb-2">📍 Tenovo, Tetovo, North Macedonia</p>
-          <p className="mb-2">📞 +389 70 123 4567</p>
-          <p className="mb-2">✉️ info@telemax.mk</p>
+          <h4 className="text-white font-semibold text-xl mb-4">{t("footer.contact.title")}</h4>
+          <p className="mb-2">{t("footer.contact.location")}</p>
+          <p className="mb-2">{t("footer.contact.phone")}</p>
+          <p className="mb-2">{t("footer.contact.email")}</p>
           <p className="mt-6 text-sm text-stone-500 select-text">
-            &copy; {new Date().getFullYear()} Telemax GmbH. All rights reserved.
+            &copy; {new Date().getFullYear()} {t("footer.rights")}
           </p>
         </div>
       </div>

@@ -132,7 +132,7 @@ export default function SignUp() {
   };
 
   return (
-    <main className="min-h-screen bg-[#14110f] text-white flex items-center justify-center px-4 py-8">
+    <main className=" min-h-screen bg-[#14110f] text-white flex items-center justify-center px-4 py-24">
       <form
         onSubmit={handleSubmit}
         className="bg-[#1e1b18] border border-stone-800 rounded-xl p-8 w-full max-w-2xl shadow-lg"

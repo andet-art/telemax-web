@@ -3,14 +3,22 @@ import { Menu, X } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLang } from "../context/LanguageContext";
-import { useAuth } from "../components/AuthContext"; // ✅ make sure file is in ../context/
+import { useTranslation } from "react-i18next";
+import { useAuth } from "../components/AuthContext";
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { lang, toggleLanguage, t } = useLang();
-  const { user, logout } = useAuth(); // ✅ Only check for `user` presence
+  const { i18n, t } = useTranslation();
+  const currentLang = i18n.language;
+
+  const toggleLanguage = () => {
+    const newLang = currentLang === "de" ? "en" : "de";
+    i18n.changeLanguage(newLang);
+    localStorage.setItem("i18nextLng", newLang);
+  };
+
+  const { user, logout } = useAuth();
 
   const [open, setOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
@@ -100,7 +108,7 @@ const Navbar = () => {
             onClick={toggleLanguage}
             className="px-3 text-white hover:text-amber-400 transition"
           >
-            {lang === "de" ? "EN" : "DE"}
+            {currentLang === "de" ? "EN" : "DE"}
           </Button>
 
           {user ? (
@@ -136,7 +144,7 @@ const Navbar = () => {
           )}
         </motion.div>
 
-        {/* Mobile Toggle Icon */}
+        {/* Mobile Toggle */}
         <div className="md:hidden">
           {open ? (
             <X className="text-white h-6 w-6" onClick={() => setOpen(false)} />
@@ -178,7 +186,7 @@ const Navbar = () => {
                 onClick={toggleLanguage}
                 className="text-white hover:text-amber-400"
               >
-                {lang === "de" ? "EN" : "DE"}
+                {currentLang === "de" ? "EN" : "DE"}
               </Button>
 
               {user ? (
