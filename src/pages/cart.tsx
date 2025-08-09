@@ -1,26 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  ShoppingCart, 
-  Minus, 
-  Plus, 
-  X, 
-  Heart, 
-  Star, 
-  Package, 
-  CreditCard, 
+import {
+  ShoppingCart,
+  Minus,
+  Plus,
+  X,
+  Star,
+  Package,
+  CreditCard,
   ArrowLeft,
   ShoppingBag,
   Gift,
   Info,
   Sparkles,
   Crown,
-  Flame,
   CheckCircle,
   Trash2,
   Save,
-  RotateCcw
+  RotateCcw,
+  LogIn,
 } from "lucide-react";
 import { useCart, availableColors, CartItem } from "../context/CartContext";
 
@@ -32,16 +31,20 @@ const colorSwatches: Record<string, string> = {
   Mahogany: "#7B3F00",
 };
 
-// Toast notification component
-const Toast = ({ message, type = "success", onClose }: {
+// Toast
+const Toast = ({
+  message,
+  type = "success",
+  onClose,
+}: {
   message: string;
   type?: "success" | "error";
   onClose: () => void;
 }) => (
   <motion.div
     className={`fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-[70] flex items-center gap-3 ${
-      type === "success" 
-        ? "bg-gradient-to-r from-green-800 to-green-700 text-green-100" 
+      type === "success"
+        ? "bg-gradient-to-r from-green-800 to-green-700 text-green-100"
         : "bg-gradient-to-r from-red-800 to-red-700 text-red-100"
     }`}
     initial={{ opacity: 0, y: -20, x: 20 }}
@@ -67,48 +70,31 @@ const Cart = () => {
     cartTotal,
     cartItemCount,
     cartSavings,
+    // These two should be implemented in CartContext (as discussed):
+    saveCartForLater: ctxSaveCartForLater,
+    loadSavedCart: ctxLoadSavedCart,
   } = useCart();
-  
-  const navigate = useNavigate();
-  const [toast, setToast] = useState<{message: string; type: "success" | "error"} | null>(null);
 
-  // Show toast notification
+  const navigate = useNavigate();
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const isLoggedIn = useMemo(() => !!localStorage.getItem("token"), []);
+
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Save cart for later
   const saveCartForLater = () => {
-    try {
-      localStorage.setItem("savedCart", JSON.stringify(cart));
-      showToast("Your cart has been saved for later! 💾");
-    } catch (error) {
-      showToast("Failed to save cart", "error");
-    }
+    ctxSaveCartForLater();
+    showToast("Your cart has been saved for later! 💾");
   };
 
-  // Load saved cart
   const loadSavedCart = () => {
-    try {
-      const saved = localStorage.getItem("savedCart");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // This would need setCart from context - for now just show message
-          showToast("Saved cart found! (Feature in development)", "success");
-        } else {
-          showToast("No valid saved cart found", "error");
-        }
-      } else {
-        showToast("No saved cart found", "error");
-      }
-    } catch (error) {
-      showToast("Failed to load saved cart", "error");
-    }
+    const ok = ctxLoadSavedCart();
+    showToast(ok ? "Saved cart loaded!" : "No saved cart found", ok ? "success" : "error");
   };
 
-  // Handle remove item with confirmation
   const handleRemoveItem = (item: CartItem) => {
     if (window.confirm(`Remove ${item.name} from your cart?`)) {
       removeItem(item.id, item.type);
@@ -116,50 +102,46 @@ const Cart = () => {
     }
   };
 
-  // Handle clear cart with confirmation
   const handleClearCart = () => {
-    if (window.confirm("Are you sure you want to clear your entire cart? This action cannot be undone.")) {
+    if (
+      window.confirm("Are you sure you want to clear your entire cart? This action cannot be undone.")
+    ) {
       clearCart();
       showToast("Cart cleared successfully");
     }
   };
 
-  // Empty cart state
+  const handleProceedToCheckout = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      showToast("Please log in to proceed to checkout.", "error");
+      navigate("/login", { state: { from: "/checkout" } });
+      return;
+    }
+    navigate("/checkout");
+  };
+
+  // Empty cart
   if (cart.length === 0) {
     return (
       <>
-        {/* Toast Notifications */}
         <AnimatePresence>
-          {toast && (
-            <Toast 
-              message={toast.message} 
-              type={toast.type} 
-              onClose={() => setToast(null)} 
-            />
-          )}
+          {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         </AnimatePresence>
 
         <main className="relative min-h-screen pt-20 sm:pt-28 pb-24 flex flex-col items-center justify-center bg-[url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop')] bg-cover bg-center text-white font-serif px-4">
           <div className="absolute inset-0 bg-black/70 z-0" />
-          
+
           <motion.div
             className="relative z-10 text-center max-w-lg mx-auto"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            {/* Empty cart icon */}
             <motion.div
               className="text-6xl sm:text-8xl mb-6"
-              animate={{ 
-                rotate: [0, -10, 10, -10, 0],
-                scale: [1, 1.1, 1]
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity,
-                repeatDelay: 3
-              }}
+              animate={{ rotate: [0, -10, 10, -10, 0], scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
             >
               🛒
             </motion.div>
@@ -167,17 +149,13 @@ const Cart = () => {
             <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-[#c9a36a] drop-shadow-lg">
               Your Cart is Empty
             </h1>
-            
+
             <p className="text-lg text-stone-300 mb-8 leading-relaxed">
               Discover our exquisite collection of handcrafted pipes and create your perfect custom piece
             </p>
 
-            {/* Action buttons */}
             <div className="space-y-4">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   to="/orders"
                   className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-[#c9a36a] to-[#d4b173] hover:from-[#d4b173] hover:to-[#e5c584] px-8 py-4 rounded-xl text-black font-bold transition-all duration-300 shadow-lg shadow-[#c9a36a]/25"
@@ -204,47 +182,39 @@ const Cart = () => {
 
   return (
     <>
-      {/* Toast Notifications */}
       <AnimatePresence>
-        {toast && (
-          <Toast 
-            message={toast.message} 
-            type={toast.type} 
-            onClose={() => setToast(null)} 
-          />
-        )}
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       </AnimatePresence>
 
       <main className="relative min-h-screen pt-20 sm:pt-28 pb-24 bg-[url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop')] bg-cover bg-center text-white font-serif">
         <div className="absolute inset-0 bg-black/70 z-0" />
-        
+
         <div className="relative z-10 px-4 sm:px-6 max-w-7xl mx-auto">
-          {/* Enhanced Header */}
+          {/* Header */}
           <motion.div
             className="text-center mb-12"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <motion.h1 
+            <motion.h1
               className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white via-[#c9a36a] to-white bg-clip-text text-transparent"
-              animate={{ 
+              animate={{
                 textShadow: [
-                  "0 0 20px rgba(201, 163, 106, 0.3)",
-                  "0 0 30px rgba(201, 163, 106, 0.5)",
-                  "0 0 20px rgba(201, 163, 106, 0.3)"
-                ]
+                  "0 0 20px rgba(201,163,106,.3)",
+                  "0 0 30px rgba(201,163,106,.5)",
+                  "0 0 20px rgba(201,163,106,.3)",
+                ],
               }}
               transition={{ duration: 3, repeat: Infinity }}
             >
               🛒 Your Cart
             </motion.h1>
-            
+
             <div className="text-lg text-stone-300">
-              {cartItemCount} item{cartItemCount !== 1 ? 's' : ''} ready for checkout
+              {cartItemCount} item{cartItemCount !== 1 ? "s" : ""} ready for checkout
             </div>
 
-            {/* Back to shopping button */}
             <motion.div className="mt-4">
               <Link
                 to="/orders"
@@ -257,7 +227,7 @@ const Cart = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Cart Items */}
+            {/* Items */}
             <div className="lg:col-span-2 space-y-6">
               <AnimatePresence>
                 {cart.map((item, index) => (
@@ -271,15 +241,9 @@ const Cart = () => {
                     transition={{ delay: index * 0.1 }}
                   >
                     <div className="flex flex-col sm:flex-row gap-6">
-                      {/* Product Image */}
+                      {/* Image */}
                       <div className="relative">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full sm:w-32 h-32 object-cover rounded-xl"
-                        />
-                        
-                        {/* Product badges */}
+                        <img src={item.image} alt={item.name} className="w-full sm:w-32 h-32 object-cover rounded-xl" />
                         <div className="absolute top-2 left-2 flex flex-col gap-1">
                           {item.featured && (
                             <span className="bg-gradient-to-r from-[#c9a36a] to-[#d4b173] text-black text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
@@ -302,20 +266,16 @@ const Cart = () => {
                         </div>
                       </div>
 
-                      {/* Product Info */}
+                      {/* Info */}
                       <div className="flex-1 space-y-4">
                         <div>
-                          <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
-                            {item.name}
-                          </h2>
-                          
-                          {item.type === 'commercial' && item.description && (
-                            <p className="text-sm text-stone-400 mb-2 line-clamp-2">
-                              {item.description}
-                            </p>
+                          <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">{item.name}</h2>
+
+                          {item.type === "commercial" && item.description && (
+                            <p className="text-sm text-stone-400 mb-2 line-clamp-2">{item.description}</p>
                           )}
-                          
-                          {item.type === 'custom' && (
+
+                          {item.type === "custom" && (
                             <div className="text-sm text-stone-400 space-y-1">
                               <div>Head: {item.head?.name}</div>
                               <div>Ring: {item.ring?.name}</div>
@@ -323,17 +283,18 @@ const Cart = () => {
                             </div>
                           )}
 
-                          {/* Product type badge */}
-                          <span className={`inline-block text-xs px-3 py-1 rounded-full font-medium ${
-                            item.type === 'custom' 
-                              ? 'bg-purple-800/30 text-purple-300 border border-purple-700/30'
-                              : 'bg-blue-800/30 text-blue-300 border border-blue-700/30'
-                          }`}>
-                            {item.type === 'custom' ? '🎨 Custom Design' : '🏪 Commercial'}
+                          <span
+                            className={`inline-block text-xs px-3 py-1 rounded-full font-medium ${
+                              item.type === "custom"
+                                ? "bg-purple-800/30 text-purple-300 border border-purple-700/30"
+                                : "bg-blue-800/30 text-blue-300 border border-blue-700/30"
+                            }`}
+                          >
+                            {item.type === "custom" ? "🎨 Custom Design" : "🏪 Commercial"}
                           </span>
                         </div>
 
-                        {/* Color Selection */}
+                        {/* Color */}
                         <div className="flex items-center gap-3">
                           <label className="text-sm font-medium text-stone-300">Color:</label>
                           <select
@@ -354,16 +315,16 @@ const Cart = () => {
                           />
                         </div>
 
-                        {/* Price and Rating */}
+                        {/* Price & qty */}
                         <div className="flex items-center justify-between">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
                               <span className="text-2xl font-bold text-[#c9a36a]">
-                                ${item.price.toFixed(2)}
+                                ${Number(item.price ?? 0).toFixed(2)}
                               </span>
-                              {item.originalPrice && (
+                              {typeof item.originalPrice !== "undefined" && (
                                 <span className="text-sm text-stone-500 line-through">
-                                  ${item.originalPrice.toFixed(2)}
+                                  ${Number(item.originalPrice ?? 0).toFixed(2)}
                                 </span>
                               )}
                             </div>
@@ -377,18 +338,19 @@ const Cart = () => {
                             )}
                           </div>
 
-                          {/* Quantity Controls */}
                           <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2 bg-gradient-to-r from-stone-800/60 to-stone-700/60 rounded-lg border border-[#c9a36a]/20 p-2">
                               <motion.button
-                                onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1), item.type)}
+                                onClick={() =>
+                                  updateQuantity(item.id, Math.max(1, Number(item.quantity) - 1), item.type)
+                                }
                                 className="w-8 h-8 rounded-lg bg-stone-700/50 hover:bg-stone-600/50 flex items-center justify-center transition-colors"
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                               >
                                 <Minus className="w-4 h-4" />
                               </motion.button>
-                              
+
                               <input
                                 type="number"
                                 min={1}
@@ -399,9 +361,9 @@ const Cart = () => {
                                 }}
                                 className="w-12 text-center bg-transparent text-white text-sm font-medium focus:outline-none"
                               />
-                              
+
                               <motion.button
-                                onClick={() => updateQuantity(item.id, item.quantity + 1, item.type)}
+                                onClick={() => updateQuantity(item.id, Number(item.quantity) + 1, item.type)}
                                 className="w-8 h-8 rounded-lg bg-stone-700/50 hover:bg-stone-600/50 flex items-center justify-center transition-colors"
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
@@ -421,10 +383,13 @@ const Cart = () => {
                           </div>
                         </div>
 
-                        {/* Item Total */}
+                        {/* Subtotal */}
                         <div className="text-right">
                           <span className="text-lg font-bold text-white">
-                            Subtotal: <span className="text-[#c9a36a]">${(item.price * item.quantity).toFixed(2)}</span>
+                            Subtotal:{" "}
+                            <span className="text-[#c9a36a]">
+                              ${(Number(item.price ?? 0) * Number(item.quantity ?? 0)).toFixed(2)}
+                            </span>
                           </span>
                         </div>
                       </div>
@@ -434,7 +399,7 @@ const Cart = () => {
               </AnimatePresence>
             </div>
 
-            {/* Order Summary */}
+            {/* Summary */}
             <div className="lg:col-span-1">
               <motion.div
                 className="sticky top-24 bg-gradient-to-br from-[#1a120b]/95 to-[#2a1d13]/95 backdrop-blur-lg border border-[#c9a36a]/20 rounded-2xl p-6 shadow-xl"
@@ -447,35 +412,33 @@ const Cart = () => {
                   Order Summary
                 </h3>
 
-                {/* Summary Details */}
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between items-center py-2 border-b border-stone-700/50">
                     <span className="text-stone-300">Items ({cartItemCount}):</span>
                     <span className="font-medium">${cartTotal.toFixed(2)}</span>
                   </div>
-                  
+
                   {cartSavings > 0 && (
                     <div className="flex justify-between items-center py-2 border-b border-stone-700/50">
                       <span className="text-green-400">You Save:</span>
                       <span className="font-medium text-green-400">-${cartSavings.toFixed(2)}</span>
                     </div>
                   )}
-                  
+
                   <div className="flex justify-between items-center py-2 border-b border-stone-700/50">
                     <span className="text-stone-300">Shipping:</span>
                     <span className="font-medium text-green-400">Free</span>
                   </div>
-                  
+
                   <div className="flex justify-between items-center py-3 border-t border-[#c9a36a]/30 pt-4">
                     <span className="text-xl font-bold">Total:</span>
                     <span className="text-2xl font-bold text-[#c9a36a]">${cartTotal.toFixed(2)}</span>
                   </div>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="space-y-3">
                   <motion.button
-                    onClick={() => navigate("/checkout")}
+                    onClick={handleProceedToCheckout}
                     className="w-full bg-gradient-to-r from-[#c9a36a] to-[#d4b173] hover:from-[#d4b173] hover:to-[#e5c584] text-black font-bold py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-[#c9a36a]/25"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -483,6 +446,13 @@ const Cart = () => {
                     <CreditCard className="w-5 h-5" />
                     Proceed to Checkout
                   </motion.button>
+
+                  {!isLoggedIn && (
+                    <div className="text-xs text-stone-400 flex items-center gap-2 justify-center">
+                      <LogIn className="w-3 h-3" />
+                      You’ll need to <Link to="/login" state={{ from: "/checkout" }} className="underline text-[#c9a36a]">log in</Link> to complete your purchase.
+                    </div>
+                  )}
 
                   <motion.button
                     onClick={handleClearCart}
@@ -495,7 +465,6 @@ const Cart = () => {
                   </motion.button>
                 </div>
 
-                {/* Save/Load Cart */}
                 <div className="mt-6 pt-6 border-t border-stone-700/50 space-y-2">
                   <motion.button
                     onClick={saveCartForLater}
@@ -506,7 +475,7 @@ const Cart = () => {
                     <Save className="w-4 h-4" />
                     Save Cart for Later
                   </motion.button>
-                  
+
                   <motion.button
                     onClick={loadSavedCart}
                     className="w-full text-sm text-stone-400 hover:text-[#c9a36a] transition-colors flex items-center justify-center gap-2"
@@ -518,7 +487,6 @@ const Cart = () => {
                   </motion.button>
                 </div>
 
-                {/* Additional Info */}
                 <div className="mt-6 pt-4 border-t border-stone-700/50">
                   <div className="flex items-center gap-2 text-xs text-stone-500 mb-2">
                     <Info className="w-3 h-3" />
@@ -532,44 +500,6 @@ const Cart = () => {
               </motion.div>
             </div>
           </div>
-
-          {/* Additional Actions Bar */}
-          <motion.div
-            className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-gradient-to-r from-[#1a120b]/60 to-[#2a1d13]/60 rounded-2xl border border-[#c9a36a]/10 backdrop-blur-sm"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <div className="text-center sm:text-left">
-              <h4 className="font-semibold text-white mb-1">Need Help?</h4>
-              <p className="text-sm text-stone-400">Contact our customer service for assistance</p>
-            </div>
-            
-            <div className="flex gap-3">
-              <motion.button
-                onClick={() => navigate("/orders")}
-                className="bg-gradient-to-r from-stone-800/60 to-stone-700/60 hover:from-stone-700/60 hover:to-stone-600/60 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 border border-[#c9a36a]/20 text-white"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Continue Shopping
-              </motion.button>
-              
-              <motion.button
-                onClick={() => {
-                  // You can implement contact functionality here
-                  showToast("Contact feature coming soon!");
-                }}
-                className="bg-gradient-to-r from-blue-800/60 to-blue-700/60 hover:from-blue-700/60 hover:to-blue-600/60 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 border border-blue-700/30 text-white"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Info className="w-4 h-4" />
-                Contact Support
-              </motion.button>
-            </div>
-          </motion.div>
         </div>
       </main>
     </>
