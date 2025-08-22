@@ -1,3 +1,4 @@
+// src/pages/AdminDashboard.tsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -25,39 +26,55 @@ import {
   Legend,
 } from "recharts";
 
-const API = import.meta.env.VITE_API_BASE_URL;
+const API = import.meta.env.VITE_API_BASE_URL || "http://209.38.231.125:4000";
+
+type AnyObj = Record<string, any>;
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState("overview");
-  const [users, setUsers] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [orders, setOrders] = useState([]);
-  const [activeUsers, setActiveUsers] = useState([]);
-  const [activeUserCount, setActiveUserCount] = useState(0);
+  const [activeTab, setActiveTab] = useState<"overview" | "users" | "products" | "orders" | "activeUsers">("overview");
+  const [users, setUsers] = useState<AnyObj[]>([]);
+  const [products, setProducts] = useState<AnyObj[]>([]);
+  const [orders, setOrders] = useState<AnyObj[]>([]);
+  const [activeUsers, setActiveUsers] = useState<AnyObj[]>([]);
+  const [activeUserCount, setActiveUserCount] = useState<number>(0);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const headers = { Authorization: `Bearer ${token}` };
 
+  const handleAuthErr = (err: any) => {
+    if (err?.response?.status === 401) {
+      localStorage.removeItem("token");
+      navigate("/signin");
+    }
+  };
+
   const preloadOverviewData = async () => {
     try {
-      const [usersRes, productsRes, ordersRes, activeRes] = await Promise.all([
-        axios.get(`${API}/api/all-users`, { headers }),
-        axios.get(`${API}/api/products`),
-        axios.get(`${API}/api/orders/admin`, { headers }),
-        axios.get(`${API}/api/active-count`, { headers }),
+      const [usersRes, productsRes, ordersRes, statsRes] = await Promise.all([
+        axios.get(`${API}/api/admin/users`, { headers }),
+        axios.get(`${API}/api/products`), // or /api/admin/products if you want admin-only
+        axios.get(`${API}/api/admin/orders`, { headers }),
+        axios.get(`${API}/api/admin/stats`, { headers }),
       ]);
 
       setUsers(Array.isArray(usersRes.data) ? usersRes.data : []);
       setProducts(Array.isArray(productsRes.data) ? productsRes.data : []);
       setOrders(Array.isArray(ordersRes.data) ? ordersRes.data : []);
-      setActiveUserCount(activeRes.data.activeUsers || 0);
-    } catch (err) {
+
+      const stats = statsRes.data ?? {};
+      setActiveUserCount(Number(stats.activeUsers ?? 0));
+      // Try to surface a list if the API provides one (e.g., activeUsers, recentActive, sessions, etc.)
+      const list =
+        stats.activeUsersList ??
+        stats.activeUsers ??
+        stats.recentActive ??
+        stats.sessions ??
+        [];
+      setActiveUsers(Array.isArray(list) ? list : []);
+    } catch (err: any) {
       console.error("❌ Overview preload error:", err);
-      if (err.response?.status === 401) {
-        localStorage.removeItem("token");
-        navigate("/signin");
-      }
+      handleAuthErr(err);
     }
   };
 
@@ -67,14 +84,14 @@ export default function AdminDashboard() {
       return;
     }
 
-    const fetchData = async () => {
+    (async () => {
       try {
         switch (activeTab) {
           case "overview":
             await preloadOverviewData();
             break;
           case "users": {
-            const res = await axios.get(`${API}/api/all-users`, { headers });
+            const res = await axios.get(`${API}/api/admin/users`, { headers });
             setUsers(Array.isArray(res.data) ? res.data : []);
             break;
           }
@@ -84,29 +101,35 @@ export default function AdminDashboard() {
             break;
           }
           case "orders": {
-            const res = await axios.get(`${API}/api/orders/admin`, { headers });
+            const res = await axios.get(`${API}/api/admin/orders`, { headers });
             setOrders(Array.isArray(res.data) ? res.data : []);
             break;
           }
           case "activeUsers": {
-            const res = await axios.get(`${API}/api/active-users`);
-            setActiveUsers(Array.isArray(res.data) ? res.data : []);
+            const res = await axios.get(`${API}/api/admin/stats`, { headers });
+            const stats = res.data ?? {};
+            const list =
+              stats.activeUsersList ??
+              stats.activeUsers ??
+              stats.recentActive ??
+              stats.sessions ??
+              [];
+            setActiveUsers(Array.isArray(list) ? list : []);
+            setActiveUserCount(Number(stats.activeUsers ?? list.length ?? 0));
             break;
           }
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("❌ Fetch error:", err);
-        if (err.response?.status === 401) {
-          localStorage.removeItem("token");
-          navigate("/signin");
-        }
+        handleAuthErr(err);
       }
-    };
-    fetchData();
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   useEffect(() => {
     preloadOverviewData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const navItems = [
@@ -115,9 +138,9 @@ export default function AdminDashboard() {
     { label: "Products", key: "products", icon: Package },
     { label: "Orders", key: "orders", icon: ShoppingCart },
     { label: "Active Users", key: "activeUsers", icon: UserCheck },
-  ];
+  ] as const;
 
-  const StatCard = ({ label, value }) => (
+  const StatCard = ({ label, value }: { label: string; value: number | string }) => (
     <motion.div whileHover={{ scale: 1.03 }} className="bg-white p-5 rounded-xl shadow">
       <div className="text-gray-500 text-sm">{label}</div>
       <div className="text-xl font-bold mt-2">{value}</div>
@@ -132,8 +155,9 @@ export default function AdminDashboard() {
       { name: "Active Users", value: activeUserCount },
     ];
 
-    const categoryCounts = products.reduce((acc, p) => {
-      acc[p.category] = (acc[p.category] || 0) + 1;
+    const categoryCounts = products.reduce<Record<string, number>>((acc, p: AnyObj) => {
+      const key = String(p.category ?? "Uncategorized");
+      acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
     const categoryData = Object.entries(categoryCounts).map(([name, value]) => ({ name, value }));
@@ -188,14 +212,16 @@ export default function AdminDashboard() {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
-            <tr key={user.id} className="border-t">
-              <td className="px-4 py-2">{user.id}</td>
-              <td className="px-4 py-2">{user.first_name} {user.last_name}</td>
-              <td className="px-4 py-2">{user.email}</td>
-              <td className="px-4 py-2">{user.phone}</td>
-              <td className="px-4 py-2 capitalize">{user.role}</td>
-              <td className="px-4 py-2">{user.country}</td>
+          {users.map((u) => (
+            <tr key={u.id} className="border-t">
+              <td className="px-4 py-2">{u.id}</td>
+              <td className="px-4 py-2">
+                {u.first_name} {u.last_name}
+              </td>
+              <td className="px-4 py-2">{u.email}</td>
+              <td className="px-4 py-2">{u.phone}</td>
+              <td className="px-4 py-2 capitalize">{u.role}</td>
+              <td className="px-4 py-2">{u.country}</td>
             </tr>
           ))}
         </tbody>
@@ -223,8 +249,12 @@ export default function AdminDashboard() {
               <td className="px-4 py-2">{p.version}</td>
               <td className="px-4 py-2">${p.price}</td>
               <td className="px-4 py-2 space-x-2">
-                <button className="text-blue-600"><Pencil size={16} /></button>
-                <button className="text-red-600"><Trash size={16} /></button>
+                <button className="text-blue-600">
+                  <Pencil size={16} />
+                </button>
+                <button className="text-red-600">
+                  <Trash size={16} />
+                </button>
               </td>
             </tr>
           ))}
@@ -235,25 +265,29 @@ export default function AdminDashboard() {
 
   const OrdersTable = () => (
     <div className="space-y-6">
-      {orders.map((order) => (
-        <div key={order.id} className="bg-white rounded-xl shadow p-4">
+      {orders.map((o) => (
+        <div key={o.id} className="bg-white rounded-xl shadow p-4">
           <div className="flex justify-between items-center border-b pb-2 mb-3">
             <div>
-              <div className="font-semibold text-lg">Order #{order.id}</div>
-              <div className="text-sm text-gray-500">{order.created_at?.slice(0, 19).replace("T", " ")}</div>
+              <div className="font-semibold text-lg">Order #{o.id}</div>
+              <div className="text-sm text-gray-500">
+                {o.created_at ? String(o.created_at).slice(0, 19).replace("T", " ") : ""}
+              </div>
             </div>
             <div className="text-right">
-              <div className="text-sm font-medium">Customer: {order.full_name}</div>
-              <div className="text-sm text-gray-600">Email: {order.user_email}</div>
-              <div className="text-sm text-gray-600">Total: ${order.total_price}</div>
-              <div className="text-sm text-teal-600 font-semibold">{order.status}</div>
+              <div className="text-sm font-medium">Customer: {o.full_name}</div>
+              <div className="text-sm text-gray-600">Email: {o.user_email}</div>
+              <div className="text-sm text-gray-600">Total: ${o.total_price}</div>
+              <div className="text-sm text-teal-600 font-semibold">{o.status}</div>
             </div>
           </div>
           <div className="text-sm">
             <div className="font-semibold mb-2">Items:</div>
             <ul className="list-disc list-inside space-y-1">
-              {order.items?.map((item) => (
-                <li key={item.id}>{item.product_name} × {item.quantity} – ${item.price}</li>
+              {(o.items ?? []).map((it: AnyObj) => (
+                <li key={it.id}>
+                  {it.product_name} × {it.quantity} – ${it.price}
+                </li>
               ))}
             </ul>
           </div>
@@ -273,13 +307,28 @@ export default function AdminDashboard() {
           </tr>
         </thead>
         <tbody>
-          {activeUsers.map((user, idx) => (
+          {activeUsers.map((u: AnyObj, idx: number) => (
             <tr key={idx} className="border-t">
-              <td className="px-4 py-2">{user.email}</td>
-              <td className="px-4 py-2">{new Date(user.loginTime).toLocaleString()}</td>
-              <td className="px-4 py-2">{user.isActive ? <span className="text-green-600 font-medium">Active</span> : <span className="text-gray-500">Inactive</span>}</td>
+              <td className="px-4 py-2">{u.email ?? u.user_email ?? "—"}</td>
+              <td className="px-4 py-2">
+                {u.loginTime ? new Date(u.loginTime).toLocaleString() : u.lastActive ?? "—"}
+              </td>
+              <td className="px-4 py-2">
+                {u.isActive ? (
+                  <span className="text-green-600 font-medium">Active</span>
+                ) : (
+                  <span className="text-gray-500">Inactive</span>
+                )}
+              </td>
             </tr>
           ))}
+          {activeUsers.length === 0 && (
+            <tr>
+              <td className="px-4 py-6 text-sm text-gray-500" colSpan={3}>
+                No active user list exposed by /api/admin/stats.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
@@ -295,11 +344,15 @@ export default function AdminDashboard() {
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`flex gap-2 items-center w-full p-2 rounded-md ${activeTab === key ? "bg-teal-700" : "hover:bg-zinc-800"}`}>
+            className={`flex gap-2 items-center w-full p-2 rounded-md ${
+              activeTab === key ? "bg-teal-700" : "hover:bg-zinc-800"
+            }`}
+          >
             <Icon size={18} /> {label}
           </button>
         ))}
       </aside>
+
       <main className="flex-1 p-6 overflow-y-auto bg-zinc-50">
         <h1 className="text-3xl font-semibold mb-4 capitalize">{activeTab}</h1>
         {activeTab === "overview" && <Overview />}

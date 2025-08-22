@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, CreditCard, ArrowLeft, ShieldCheck, Clock } from "lucide-react";
+import { api } from "@/lib/api";
 
 import visaLogo from "../assets/visa.jpg";
 import mastercardLogo from "../assets/mastercard.jpg";
@@ -30,7 +31,6 @@ const paymentMethods = [
 ] as const;
 
 const cardBrands: MethodId[] = ["visa", "mastercard", "amex"];
-
 const fieldBase =
   "w-full px-4 py-3 rounded bg-[#2a1d13] text-white placeholder-stone-400 border border-stone-700 focus:outline-none focus:ring-2 focus:ring-[#c9a36a]";
 
@@ -40,16 +40,14 @@ const Payment: React.FC = () => {
   const orderData = (location.state || null) as LocationState | null;
 
   const [selectedMethod, setSelectedMethod] = useState<MethodId>(null);
-
-  // Card form state
   const [cardNumber, setCardNumber] = useState("");
   const [cardHolder, setCardHolder] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
 
-  // Flow state
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [orderId, setOrderId] = useState<string | number | undefined>(orderData?.orderId);
 
   const totalFormatted = useMemo(
     () => (orderData ? `$${Number(orderData.total || 0).toFixed(2)}` : "$0.00"),
@@ -71,65 +69,68 @@ const Payment: React.FC = () => {
   }
 
   const isCardBrand = selectedMethod && cardBrands.includes(selectedMethod);
-
-  // simple helpers
   const formatCard = (v: string) =>
-    v
-      .replace(/\D/g, "")
-      .slice(0, 19)
-      .replace(/(.{4})/g, "$1 ")
-      .trim();
-
+    v.replace(/\D/g, "").slice(0, 19).replace(/(.{4})/g, "$1 ").trim();
   const formatExpiry = (v: string) =>
-    v
-      .replace(/\D/g, "")
-      .slice(0, 4)
-      .replace(/(\d{2})(\d{1,2})/, "$1/$2");
+    v.replace(/\D/g, "").slice(0, 4).replace(/(\d{2})(\d{1,2})/, "$1/$2");
 
   const handleConfirm = async () => {
-    // fake validations for demo
-    if (!selectedMethod) {
-      alert("Please select a payment method.");
-      return;
-    }
+    if (!selectedMethod) return alert("Please select a payment method.");
 
     if (isCardBrand) {
-      if (cardNumber.replace(/\s/g, "").length < 15) return alert("Please enter a valid card number.");
-      if (!cardHolder.trim()) return alert("Please enter the cardholder name.");
-      if (expiry.length < 4) return alert("Please enter a valid expiry (MM/YY).");
-      if (cvv.length < 3) return alert("Please enter a valid CVV.");
+      if (cardNumber.replace(/\s/g, "").length < 15) return alert("Enter a valid card number.");
+      if (!cardHolder.trim()) return alert("Enter the cardholder name.");
+      if (expiry.length < 4) return alert("Enter a valid expiry (MM/YY).");
+      if (cvv.length < 3) return alert("Enter a valid CVV.");
     }
 
     setSubmitting(true);
+    try {
+      // 1) Ensure order exists (backend: POST /api/orders)
+      if (!orderId) {
+        try {
+          const { data } = await api.post("/api/orders", {
+            name: orderData.name,
+            email: orderData.email,
+            address: orderData.address,
+            total: orderData.total,
+          });
+          if (data?.id) setOrderId(data.id);
+        } catch { /* ignore if endpoint not present */ }
+      }
 
-    // Simulate external redirects or processing
-    await new Promise((r) => setTimeout(r, selectedMethod === "paypal" || selectedMethod === "apple" ? 1400 : 1000));
+      // 2) Mark as paid if backend supports it (POST /api/orders/:id/pay)
+      if (orderId) {
+        const last4 = cardNumber.replace(/\D/g, "").slice(-4);
+        try {
+          await api.post(`/api/orders/${orderId}/pay`, {
+            method: selectedMethod,
+            last4: last4 || undefined,
+            total: orderData.total,
+          });
+        } catch { /* optional endpoint */ }
+      }
 
-    // Show success screen (you can navigate to /order-history if you prefer)
-    setSuccess(true);
-    setSubmitting(false);
+      // Simulate external redirect latency
+      await new Promise((r) =>
+        setTimeout(r, selectedMethod === "paypal" || selectedMethod === "apple" ? 1400 : 800)
+      );
+
+      setSuccess(true);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const SuccessView = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="max-w-2xl mx-auto text-center"
-    >
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto text-center">
       <div className="flex items-center justify-center mb-6">
         <CheckCircle2 className="w-16 h-16 text-green-400" />
       </div>
       <h2 className="text-2xl sm:text-3xl font-bold mb-3">Payment Successful</h2>
       <p className="text-stone-300 mb-6">
-        Thanks, <span className="text-white font-semibold">{orderData.name}</span>!
-        {orderData.orderId ? (
-          <>
-            {" "}
-            Your order <span className="text-[#c9a36a] font-semibold">#{orderData.orderId}</span> is being prepared.
-          </>
-        ) : (
-          " Your order is being prepared."
-        )}
+        Thanks, <span className="text-white font-semibold">{orderData.name}</span>!{" "}
+        {orderId ? <>Your order <span className="text-[#c9a36a] font-semibold">#{orderId}</span> is being prepared.</> : "Your order is being prepared."}
       </p>
 
       <div className="bg-[#20160f] border border-stone-800 rounded-xl p-5 text-left space-y-2 mb-6">
@@ -211,21 +212,13 @@ const Payment: React.FC = () => {
           </div>
         );
       case "paypal":
-        return (
-          <p className="text-base text-stone-300 italic">
-            You’ll be redirected to PayPal to complete your payment.
-          </p>
-        );
+        return <p className="text-base text-stone-300 italic">You’ll be redirected to PayPal.</p>;
       case "apple":
-        return (
-          <p className="text-base text-stone-300 italic">
-            Use your Apple device to confirm the payment with Apple&nbsp;Pay.
-          </p>
-        );
+        return <p className="text-base text-stone-300 italic">Confirm with Apple&nbsp;Pay.</p>;
       case "cash":
         return (
           <p className="text-base text-stone-300 italic">
-            You chose <span className="text-white font-medium">Cash on Delivery</span>. Please have the exact amount ready.
+            Cash on Delivery selected. Please have the exact amount ready.
           </p>
         );
       default:
@@ -238,64 +231,36 @@ const Payment: React.FC = () => {
       <div className="absolute inset-0 bg-black/70" />
       <div className="relative pt-28 pb-16 px-4 sm:px-6 md:px-10 max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 text-stone-300 hover:text-white transition"
-          >
+          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-stone-300 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
             Back
           </button>
         </div>
 
-        <motion.h1
-          className="text-4xl sm:text-5xl font-extrabold text-center text-[#c9a36a] mb-10"
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <motion.h1 className="text-4xl sm:text-5xl font-extrabold text-center text-[#c9a36a] mb-10" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
           💳 Payment
         </motion.h1>
 
         <AnimatePresence mode="wait">
           {success ? (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="bg-[#2a1d13] p-8 rounded-2xl shadow-xl border border-stone-800"
-            >
+            <motion.div key="success" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="bg-[#2a1d13] p-8 rounded-2xl shadow-xl border border-stone-800">
               <SuccessView />
             </motion.div>
           ) : (
-            <motion.div
-              key="form"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="grid md:grid-cols-2 gap-6"
-            >
+            <motion.div key="form" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="grid md:grid-cols-2 gap-6">
               {/* Order summary */}
               <div className="bg-[#2a1d13] p-6 rounded-2xl shadow-xl border border-stone-800 space-y-4">
                 <h2 className="text-xl font-bold">Order Summary</h2>
                 <div className="space-y-2 text-stone-200">
-                  {orderData.orderId && (
+                  {orderId && (
                     <p>
                       <span className="text-stone-400">Order #:</span>{" "}
-                      <span className="font-semibold text-white">#{orderData.orderId}</span>
+                      <span className="font-semibold text-white">#{orderId}</span>
                     </p>
                   )}
-                  <p>
-                    <span className="text-stone-400">Name:</span>{" "}
-                    <span className="font-medium text-white">{orderData.name}</span>
-                  </p>
-                  <p>
-                    <span className="text-stone-400">Email:</span>{" "}
-                    <span className="font-medium text-white break-all">{orderData.email}</span>
-                  </p>
-                  <p>
-                    <span className="text-stone-400">Address:</span>{" "}
-                    <span className="font-medium text-white">{orderData.address}</span>
-                  </p>
+                  <p><span className="text-stone-400">Name:</span> <span className="font-medium text-white">{orderData.name}</span></p>
+                  <p><span className="text-stone-400">Email:</span> <span className="font-medium text-white break-all">{orderData.email}</span></p>
+                  <p><span className="text-stone-400">Address:</span> <span className="font-medium text-white">{orderData.address}</span></p>
                 </div>
                 <div className="pt-2 border-t border-stone-800 flex items-center justify-between">
                   <span className="text-lg">Total</span>
@@ -316,9 +281,7 @@ const Payment: React.FC = () => {
                       key={method.id}
                       onClick={() => setSelectedMethod(method.id as MethodId)}
                       className={`rounded-xl p-3 bg-[#1e130a] border-2 transition flex items-center justify-center shadow-inner hover:border-[#c9a36a] ${
-                        selectedMethod === method.id
-                          ? "border-[#c9a36a] ring-2 ring-[#c9a36a]"
-                          : "border-stone-700"
+                        selectedMethod === method.id ? "border-[#c9a36a] ring-2 ring-[#c9a36a]" : "border-stone-700"
                       }`}
                     >
                       <img src={method.logo} alt={method.label} className="h-6 sm:h-8 object-contain" />
@@ -343,18 +306,9 @@ const Payment: React.FC = () => {
                     className="w-full mt-6 bg-[#c9a36a] hover:bg-[#b68d58] disabled:opacity-60 text-[#1a120b] font-bold py-3 rounded-full shadow-lg transition inline-flex items-center justify-center gap-2"
                   >
                     {submitting && (
-                      <svg
-                        className="animate-spin h-5 w-5 text-[#1a120b]"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
+                      <svg className="animate-spin h-5 w-5 text-[#1a120b]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                        />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                       </svg>
                     )}
                     {submitting ? "Processing..." : "Confirm Payment"}

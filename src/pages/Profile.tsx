@@ -1,15 +1,46 @@
+// src/pages/profile.tsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://209.38.231.125:4000";
+const API = import.meta.env.VITE_API_BASE_URL || "http://209.38.231.125:4000";
+
+type Editable = {
+  phone: string;
+  shipping_address: string;
+  billing_address: string;
+  marketing_consent: boolean;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  country: string;
+  password?: string;
+};
+
+type PublicUser = {
+  id: number;
+  email: string;
+  role: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  country?: string;
+  shipping_address?: string;
+  billing_address?: string;
+  age_verified?: boolean;
+  terms_accepted?: boolean;
+  privacy_accepted?: boolean;
+  marketing_consent?: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
 
 export default function Profile() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<PublicUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState(null);
-  const [editable, setEditable] = useState({
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [editable, setEditable] = useState<Editable>({
     phone: "",
     shipping_address: "",
     billing_address: "",
@@ -21,57 +52,102 @@ export default function Profile() {
     password: "",
   });
 
-  const toggleSection = (key) => {
-    setExpanded(expanded === key ? null : key);
-  };
+  const toggleSection = (key: string) => setExpanded(expanded === key ? null : key);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return navigate("/signin");
+    if (!token) {
+      navigate("/signin");
+      return;
+    }
 
-    fetch(`${API_BASE}/api/profile`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to load profile");
-        return res.json();
-      })
-      .then((data) => {
-        setUser(data);
+    (async () => {
+      try {
+        // ✅ Your backend exposes GET /api/auth/me and returns { user: {...} }
+        const res = await fetch(`${API}/api/auth/me`, {
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        });
+
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/signin");
+          return;
+        }
+        if (!res.ok) throw new Error(await res.text());
+
+        const data = await res.json();
+        const me: PublicUser = data?.user ?? data; // tolerate either shape
+
+        setUser(me);
         setEditable({
-          phone: data.phone || "",
-          shipping_address: data.shipping_address || "",
-          billing_address: data.billing_address || "",
-          marketing_consent: data.marketing_consent,
-          first_name: data.first_name || "",
-          last_name: data.last_name || "",
-          date_of_birth: data.date_of_birth || "",
-          country: data.country || "",
+          phone: me.phone ?? "",
+          shipping_address: me.shipping_address ?? "",
+          billing_address: me.billing_address ?? "",
+          marketing_consent: !!me.marketing_consent,
+          first_name: me.first_name ?? "",
+          last_name: me.last_name ?? "",
+          date_of_birth: (me as any)?.date_of_birth ?? "", // if present
+          country: me.country ?? "",
           password: "",
         });
-      })
-      .catch((err) => console.error("Profile load error", err))
-      .finally(() => setLoading(false));
+      } catch (e) {
+        console.error("Profile load error", e);
+        toast.error("Failed to load profile");
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [navigate]);
+
+  const tryUpdate = async (path: string, body: any, token: string) => {
+    const res = await fetch(`${API}${path}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body),
+    });
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/signin");
+      return false;
+    }
+    if (res.ok) return true;
+    // allow caller to decide fallback on 404/405
+    if (res.status === 404 || res.status === 405) return false;
+    throw new Error(await res.text());
+  };
 
   const handleSave = async () => {
     const token = localStorage.getItem("token");
-    try {
-      const res = await fetch(`${API_BASE}/api/profile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(editable),
-      });
+    if (!token) return navigate("/signin");
 
-      if (!res.ok) throw new Error("Update failed");
+    try {
+      const body: any = { ...editable };
+      if (!body.password) delete body.password; // don't send empty password
+
+      // ✅ Try common update locations
+      let updated = await tryUpdate("/api/users/me", body, token);
+      if (!updated) {
+        updated = await tryUpdate("/api/profile", body, token);
+      }
+      if (!updated) {
+        // last resort: if you actually implemented PUT /api/auth/me
+        updated = await tryUpdate("/api/auth/me", body, token);
+      }
+      if (!updated) {
+        toast.error("Update endpoint not found (ask backend to add PUT /api/users/me)");
+        return;
+      }
+
+      // Keep local user cache fresh
+      const current = (user || (localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : {})) as any;
+      const merged = { ...current, ...body };
+      setUser(merged);
+      localStorage.setItem("user", JSON.stringify(merged));
 
       toast.success("Profile updated successfully");
+      setEditable((e) => ({ ...e, password: "" })); // clear password field
     } catch (err) {
       console.error(err);
       toast.error("Failed to update profile");

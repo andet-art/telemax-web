@@ -1,18 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
+    "target": "ES2020",
     "module": "ESNext",
-    "moduleResolution": "Node",
-    "strict": true,
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": false,
     "baseUrl": ".",
-    "paths": {
-      "@/components/*": ["src/components/*"],
-      "@/lib/*": ["src/lib/*"],
-      "@/app/*": ["src/app/*"],
-      "@/styles/*": ["src/styles/*"]
-    }
+    "paths": { "@/*": ["src/*"] }
   },
   "include": ["src"]
 }

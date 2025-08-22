@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { api } from "@/lib/api"; // ✅ use droplet-aware axios instance
 
 const safeNum = (v: number | string | undefined) => Number(v ?? 0) || 0;
 
@@ -33,7 +34,6 @@ const Checkout = () => {
       setErrorMsg("Please fill in all required fields.");
       return false;
     }
-    // Light checks (don’t go overboard client-side)
     const emailOK = /\S+@\S+\.\S+/.test(formData.email);
     if (!emailOK) {
       setErrorMsg("Please enter a valid email address.");
@@ -75,7 +75,6 @@ const Checkout = () => {
           quantity: safeNum(item.quantity),
           price: safeNum(item.price),
           line_total: safeNum(item.price) * safeNum(item.quantity),
-          // Include components for custom builds (if your API uses them)
           head_id: item.type === "custom" ? item.head?.id ?? null : null,
           ring_id: item.type === "custom" ? item.ring?.id ?? null : null,
           tail_id: item.type === "custom" ? item.tail?.id ?? null : null,
@@ -83,28 +82,12 @@ const Checkout = () => {
         total_price: totalPrice,
       };
 
-      const response = await fetch("http://209.38.231.125:4000/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
+      // ✅ POST to droplet API (base URL from VITE_API_BASE_URL)
+      const { data } = await api.post("/api/orders", payload, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!response.ok) {
-        const txt = await response.text().catch(() => "");
-        throw new Error(txt || "Failed to place order");
-      }
-
-      // optional: if API returns an order object/id
-      let orderId: string | number | undefined;
-      try {
-        const data = await response.json();
-        orderId = data?.order?.id ?? data?.id;
-      } catch {
-        // ignore JSON parse errors if API returns empty body
-      }
+      const orderId: string | number | undefined = data?.order?.id ?? data?.id ?? null;
 
       clearCart();
       navigate("/payment", {
@@ -113,11 +96,16 @@ const Checkout = () => {
           email: formData.email,
           address: formData.address,
           total: totalPrice,
-          orderId: orderId ?? null,
+          orderId,
         },
       });
     } catch (err: any) {
-      setErrorMsg(err?.message || "Error placing order.");
+      const msg =
+        err?.response?.data?.message ||
+        (typeof err?.response?.data === "string" ? err.response.data : "") ||
+        err?.message ||
+        "Error placing order.";
+      setErrorMsg(msg);
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -149,9 +137,7 @@ const Checkout = () => {
           🧾 Checkout
         </h1>
 
-        {/* Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-gradient-to-br from-[#1a120b]/95 to-[#2a1d13]/95 border border-[#c9a36a]/20 rounded-2xl p-6 shadow-xl">
               <h2 className="text-2xl font-bold mb-4 text-white">Order Summary</h2>
@@ -202,7 +188,6 @@ const Checkout = () => {
             </div>
           </div>
 
-          {/* Form */}
           <div className="lg:col-span-2">
             <form
               onSubmit={handleSubmit}

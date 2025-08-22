@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 // ✅ Sanity Client & Queries
-import { sanity } from "@/lib/sanityClient";
+import { sanity } from "@/lib/sanity";
 import { homeCMSQuery } from "@/lib/queries";
 
 // ✅ Routing & Translations
@@ -113,23 +113,34 @@ const Home = () => {
   }), [isMobile]);
 
   // 🔹 Fetch from Sanity with error handling
-  useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const result = await sanity.fetch(homeCMSQuery);
-        setCmsData(result);
-      } catch (error) {
-        console.error("CMS fetch failed:", error);
-        // Fallback content
+  // replace your Sanity useEffect with this
+useEffect(() => {
+  let cancelled = false;
+
+  const fetchContent = async () => {
+    try {
+      const result = await sanity.fetch(homeCMSQuery);
+      if (!cancelled) setCmsData(result ?? {
+        cmsTitle: "Live Content Editing",
+        cmsDescription: "Easily manage your content using Sanity CMS — no code, no redeploy.",
+        cmsButton: "Connect Sanity CMS",
+      });
+    } catch (error) {
+      console.error("CMS fetch failed:", error);
+      if (!cancelled) {
         setCmsData({
           cmsTitle: "Live Content Editing",
           cmsDescription: "Easily manage your content using Sanity CMS — no code, no redeploy.",
-          cmsButton: "Connect Sanity CMS"
+          cmsButton: "Connect Sanity CMS",
         });
       }
-    };
-    fetchContent();
-  }, []);
+    }
+  };
+
+  fetchContent();
+  return () => { cancelled = true; };
+}, []);
+
 
   // ✅ Optimized smooth scroll with mobile performance
   useEffect(() => {

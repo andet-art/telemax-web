@@ -1,8 +1,7 @@
+// pages/signin.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-// Optionally use an environment variable for flexibility
-const API_BASE = import.meta.env.VITE_API_URL || "http://209.38.231.125:4000";
+import { useAuth } from "@/components/AuthContext";
 
 type SignInForm = {
   email: string;
@@ -11,6 +10,7 @@ type SignInForm = {
 
 export default function SignIn() {
   const navigate = useNavigate();
+  const { loginWithCredentials } = useAuth(); // should POST /api/auth/signin internally
   const [form, setForm] = useState<SignInForm>({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -24,30 +24,17 @@ export default function SignIn() {
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE}/api/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.message || `Sign in failed (${res.status}: ${res.statusText})`);
-      } else {
-        // Store JWT and user info
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        
-        // Role-based redirect
-        if (data.user.role === 'admin') {
-          navigate("/profile");
-        } else {
-          navigate("/profile");
-        }
-      }
+      await loginWithCredentials(form.email.trim(), form.password);
+      navigate("/profile");
     } catch (err: any) {
-      console.error("🔥 Error during signin:", err);
-      setError("Server error — please try again later.");
+      const data = err?.response?.data;
+      const msg =
+        data?.error ||
+        data?.message ||
+        (typeof data === "string" ? data : "") ||
+        err?.message ||
+        "Sign in failed.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -63,9 +50,7 @@ export default function SignIn() {
           Sign In
         </h1>
 
-        {error && (
-          <p className="text-red-400 text-center mb-4 font-medium">{error}</p>
-        )}
+        {error && <p className="text-red-400 text-center mb-4 font-medium">{error}</p>}
 
         <div className="space-y-4">
           <input
@@ -90,14 +75,14 @@ export default function SignIn() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !form.email || !form.password}
           className="w-full mt-6 bg-stone-700 hover:bg-stone-600 transition py-2 rounded-md text-white font-medium shadow-sm disabled:opacity-50"
         >
           {loading ? "Signing In…" : "Sign In"}
         </button>
 
         <p className="text-center text-sm mt-4 text-stone-400">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{" "}
           <span
             className="text-[#c9a36a] cursor-pointer hover:underline"
             onClick={() => navigate("/signup")}

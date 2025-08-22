@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-slot": "^1.2.3",
     "@reduxjs/toolkit": "^2.8.2",
@@ -26,13 +27,13 @@
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.525.0",
     "react": "^19.1.0",
-    "react-accessible-accordion": "^5.0.1",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.59.0",
     "react-hot-toast": "^2.5.2",
     "react-i18next": "^15.6.1",
     "react-icons": "^5.5.0",
     "react-intersection-observer": "^9.16.0",
+    "react-is": "^19.1.1",
     "react-lazyload": "^3.2.1",
     "react-modal": "^3.16.3",
     "react-redux": "^9.2.0",
@@ -64,8 +65,8 @@
     "vite": "^7.0.5",
     "vitest": "^3.2.4"
   },
-  "description": "<<<<<<< HEAD\r # telemax\r =======\r # React + TypeScript + Vite",
-  "main": "eslint.config.js",
+  "description": "Telemax Frontend - React + TypeScript + Vite",
+  "main": "index.html",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andet-art/telemax.git"

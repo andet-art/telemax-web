@@ -22,8 +22,8 @@ import {
   LogIn,
 } from "lucide-react";
 import { useCart, availableColors, CartItem } from "../context/CartContext";
+import { api } from "@/lib/api"; // 🔗 use droplet API
 
-// Color swatches for visualization
 const colorSwatches: Record<string, string> = {
   Natural: "#D2B48C",
   "Dark Walnut": "#5C3A21",
@@ -31,7 +31,6 @@ const colorSwatches: Record<string, string> = {
   Mahogany: "#7B3F00",
 };
 
-// Toast
 const Toast = ({
   message,
   type = "success",
@@ -70,7 +69,6 @@ const Cart = () => {
     cartTotal,
     cartItemCount,
     cartSavings,
-    // These two should be implemented in CartContext (as discussed):
     saveCartForLater: ctxSaveCartForLater,
     loadSavedCart: ctxLoadSavedCart,
   } = useCart();
@@ -103,25 +101,31 @@ const Cart = () => {
   };
 
   const handleClearCart = () => {
-    if (
-      window.confirm("Are you sure you want to clear your entire cart? This action cannot be undone.")
-    ) {
+    if (window.confirm("Clear entire cart?")) {
       clearCart();
       showToast("Cart cleared successfully");
     }
   };
 
-  const handleProceedToCheckout = () => {
+  const handleProceedToCheckout = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
       showToast("Please log in to proceed to checkout.", "error");
       navigate("/login", { state: { from: "/checkout" } });
       return;
     }
+
+    // 🔎 quick API health ping (uses droplet base URL)
+    try {
+      await api.get("/api/health");
+    } catch {
+      showToast("API is unreachable. Please try again.", "error");
+      return;
+    }
+
     navigate("/checkout");
   };
 
-  // Empty cart
   if (cart.length === 0) {
     return (
       <>
@@ -131,7 +135,6 @@ const Cart = () => {
 
         <main className="relative min-h-screen pt-20 sm:pt-28 pb-24 flex flex-col items-center justify-center bg-[url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop')] bg-cover bg-center text-white font-serif px-4">
           <div className="absolute inset-0 bg-black/70 z-0" />
-
           <motion.div
             className="relative z-10 text-center max-w-lg mx-auto"
             initial={{ opacity: 0, y: 30 }}
@@ -145,15 +148,10 @@ const Cart = () => {
             >
               🛒
             </motion.div>
-
-            <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-[#c9a36a] drop-shadow-lg">
-              Your Cart is Empty
-            </h1>
-
+            <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-[#c9a36a] drop-shadow-lg">Your Cart is Empty</h1>
             <p className="text-lg text-stone-300 mb-8 leading-relaxed">
               Discover our exquisite collection of handcrafted pipes and create your perfect custom piece
             </p>
-
             <div className="space-y-4">
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
@@ -190,7 +188,6 @@ const Cart = () => {
         <div className="absolute inset-0 bg-black/70 z-0" />
 
         <div className="relative z-10 px-4 sm:px-6 max-w-7xl mx-auto">
-          {/* Header */}
           <motion.div
             className="text-center mb-12"
             initial={{ opacity: 0, y: -20 }}
@@ -216,10 +213,7 @@ const Cart = () => {
             </div>
 
             <motion.div className="mt-4">
-              <Link
-                to="/orders"
-                className="inline-flex items-center gap-2 text-[#c9a36a] hover:text-[#e5c584] transition-colors"
-              >
+              <Link to="/orders" className="inline-flex items-center gap-2 text-[#c9a36a] hover:text-[#e5c584] transition-colors">
                 <ArrowLeft className="w-4 h-4" />
                 Continue Shopping
               </Link>
@@ -227,7 +221,6 @@ const Cart = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Items */}
             <div className="lg:col-span-2 space-y-6">
               <AnimatePresence>
                 {cart.map((item, index) => (
@@ -241,7 +234,6 @@ const Cart = () => {
                     transition={{ delay: index * 0.1 }}
                   >
                     <div className="flex flex-col sm:flex-row gap-6">
-                      {/* Image */}
                       <div className="relative">
                         <img src={item.image} alt={item.name} className="w-full sm:w-32 h-32 object-cover rounded-xl" />
                         <div className="absolute top-2 left-2 flex flex-col gap-1">
@@ -266,7 +258,6 @@ const Cart = () => {
                         </div>
                       </div>
 
-                      {/* Info */}
                       <div className="flex-1 space-y-4">
                         <div>
                           <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">{item.name}</h2>
@@ -294,7 +285,6 @@ const Cart = () => {
                           </span>
                         </div>
 
-                        {/* Color */}
                         <div className="flex items-center gap-3">
                           <label className="text-sm font-medium text-stone-300">Color:</label>
                           <select
@@ -315,7 +305,6 @@ const Cart = () => {
                           />
                         </div>
 
-                        {/* Price & qty */}
                         <div className="flex items-center justify-between">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
@@ -341,9 +330,7 @@ const Cart = () => {
                           <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2 bg-gradient-to-r from-stone-800/60 to-stone-700/60 rounded-lg border border-[#c9a36a]/20 p-2">
                               <motion.button
-                                onClick={() =>
-                                  updateQuantity(item.id, Math.max(1, Number(item.quantity) - 1), item.type)
-                                }
+                                onClick={() => updateQuantity(item.id, Math.max(1, Number(item.quantity) - 1), item.type)}
                                 className="w-8 h-8 rounded-lg bg-stone-700/50 hover:bg-stone-600/50 flex items-center justify-center transition-colors"
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
@@ -383,7 +370,6 @@ const Cart = () => {
                           </div>
                         </div>
 
-                        {/* Subtotal */}
                         <div className="text-right">
                           <span className="text-lg font-bold text-white">
                             Subtotal:{" "}
@@ -399,7 +385,6 @@ const Cart = () => {
               </AnimatePresence>
             </div>
 
-            {/* Summary */}
             <div className="lg:col-span-1">
               <motion.div
                 className="sticky top-24 bg-gradient-to-br from-[#1a120b]/95 to-[#2a1d13]/95 backdrop-blur-lg border border-[#c9a36a]/20 rounded-2xl p-6 shadow-xl"

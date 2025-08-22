@@ -15,7 +15,7 @@ import CustomizePage from "./pages/CustomizePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrderHistory from "./pages/OrderHistory";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import Cart from "./pages/cart";
+import Cart from "./pages/Cart";
 
 function App() {
   return (
